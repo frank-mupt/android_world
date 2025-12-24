@@ -30,6 +30,11 @@ from absl import logging
 from android_world import registry
 from android_world.agents import infer
 from android_world.agents import t3a
+from android_world.agents import midscene
+
+from dotenv import load_dotenv;
+
+
 from android_world.env import env_launcher
 from android_world.task_evals import task_eval
 
@@ -37,6 +42,8 @@ logging.set_verbosity(logging.WARNING)
 
 os.environ['GRPC_VERBOSITY'] = 'ERROR'  # Only show errors
 os.environ['GRPC_TRACE'] = 'none'  # Disable tracing
+load_dotenv()
+
 
 
 def _find_adb_directory() -> str:
@@ -104,7 +111,7 @@ def _main() -> None:
   params = task_type.generate_random_params()
   task = task_type(params)
   task.initialize_task(env)
-  agent = t3a.T3A(env, infer.Gpt4Wrapper('gpt-4-turbo-2024-04-09'))
+  agent = midscene.MidsceneAgent(env)
 
   print('Goal: ' + str(task.goal))
   is_done = False

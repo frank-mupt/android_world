@@ -33,11 +33,17 @@ from android_world.agents import base_agent
 from android_world.agents import human_agent
 from android_world.agents import infer
 from android_world.agents import m3a
+from android_world.agents import midscene
 from android_world.agents import random_agent
 from android_world.agents import seeact
 from android_world.agents import t3a
 from android_world.env import env_launcher
 from android_world.env import interface
+
+from dotenv import load_dotenv;
+
+load_dotenv()
+
 
 logging.set_verbosity(logging.WARNING)
 
@@ -178,6 +184,11 @@ def _get_agent(
   # SeeAct.
   elif _AGENT_NAME.value == 'seeact':
     agent = seeact.SeeAct(env)
+    # Midscene.
+  elif _AGENT_NAME.value == 'midscene':
+    agent = midscene.MidsceneAgent(env)
+
+
 
   if not agent:
     raise ValueError(f'Unknown agent: {_AGENT_NAME.value}')
