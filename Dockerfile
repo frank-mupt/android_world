@@ -1,6 +1,6 @@
 # Credits to https://github.com/amrsa1/Android-Emulator-image
 
-FROM openjdk:18-jdk-slim
+FROM eclipse-temurin:18-jdk
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -100,7 +100,8 @@ RUN chmod a+x docker_setup/start_emu.sh && \
 #====================================
 # Install dependencies
 #====================================
-RUN uv pip install . --system
+# RUN export UV_DEFAULT_INDEX=https://mirrors.aliyun.com/pypi/simple/
+# RUN uv pip install . --system -vv --no-cache --no-build-isolation --index-strategy unsafe-first-match -v
 
 #=======================
 # framework entry point
