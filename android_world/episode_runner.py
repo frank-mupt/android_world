@@ -17,7 +17,7 @@
 import dataclasses
 from typing import Any, Callable, Optional
 from android_world import constants
-from android_world.agents import base_agent
+from android_world.agents import base_agent, midscene
 from android_world.env import interface
 import termcolor
 
@@ -46,6 +46,7 @@ def run_episode(
     start_on_home_screen: bool = False,
     termination_fn: Callable[[interface.AsyncEnv], float] | None = None,
     print_fn: Callable[[str], None] = print,
+    task_name: str = '',
 ) -> EpisodeResult:
   """Runs an agent on goal, e.g., "turn off wifi".
 
@@ -75,6 +76,11 @@ def run_episode(
 
   agent.reset(start_on_home_screen)
   agent.set_max_steps(max_n_steps)
+
+ 
+
+  if isinstance(agent, midscene.MidsceneAgent):
+    agent.start_new_task(task_name)
 
   output = []
   for step_n in range(max_n_steps):

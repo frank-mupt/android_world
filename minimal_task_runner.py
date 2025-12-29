@@ -112,6 +112,7 @@ def _main() -> None:
   task = task_type(params)
   task.initialize_task(env)
   agent = midscene.MidsceneAgent(env)
+  agent.start_new_task(task.name)
 
   print('Goal: ' + str(task.goal))
   is_done = False
@@ -121,6 +122,9 @@ def _main() -> None:
       is_done = True
       break
   agent_successful = is_done and task.is_successful(env) == 1
+  agent.update_task_status(
+      'Successful' if agent_successful else 'Failed'
+  )
   print(
       f'{"Task Successful ✅" if agent_successful else "Task Failed ❌"};'
       f' {task.goal}'

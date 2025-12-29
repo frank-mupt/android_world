@@ -28,7 +28,10 @@ from android_env import env_interface
 from android_world import checkpointer as checkpointer_lib
 from android_world import constants
 from android_world import episode_runner
-from android_world.agents import base_agent
+from android_world.agents import base_agent, midscene
+
+
+
 from android_world.env import adb_utils
 from android_world.env import interface
 from android_world.task_evals import task_eval
@@ -36,6 +39,7 @@ from android_world.task_evals.miniwob import miniwob_base
 from fuzzywuzzy import process
 import numpy as np
 import pandas as pd
+from typing import cast
 
 # A fixed seed to use when use identical parameters but seed is not set.
 _FIXED_SEED = 123
@@ -225,6 +229,7 @@ def _run_task(
     run_episode: Callable[[TaskEvalType], episode_runner.EpisodeResult],
     env: interface.AsyncEnv,
     demo_mode: bool,
+    agent: base_agent.EnvironmentInteractingAgent = None
 ) -> dict[str, Any]:
   """Runs a task.
 
@@ -259,6 +264,12 @@ def _run_task(
     )
   else:
     agent_successful = task_successful if interaction_results.done else 0.0
+    if isinstance(agent, midscene.MidsceneAgent):
+       agent.update_task_status(
+            'Successful' if agent_successful > 0.5 else 'Failed'
+        )
+      
+
     _log_and_print(
         '%s; %s',
         'Task Successful ✅' if agent_successful > 0.5 else 'Task Failed ❌',
@@ -326,6 +337,7 @@ def _run_task_suite(
     return_full_episode_data: bool = False,
     process_episodes_fn=None,
     check_episode_fn: Callable[[dict[str, Any]], bool] | None = None,
+    agent: base_agent.EnvironmentInteractingAgent = None
 ) -> list[dict[str, Any]]:
   """Runs e2e system on suite.
 
@@ -391,7 +403,7 @@ def _run_task_suite(
         _log_and_print('Skipping already processed task %s', instance_name)
         continue
 
-      episode = _run_task(instance, run_episode, env, demo_mode=demo_mode)
+      episode = _run_task(instance, run_episode, env, demo_mode=demo_mode, agent=agent)
       if (
           episode.get(constants.EpisodeConstants.EXCEPTION_INFO) is None
           and check_episode_fn is not None
@@ -463,6 +475,7 @@ def run(
             if task.name.lower().startswith('miniwob')
             else None
         ),
+        task_name=task.name,
     )
 
   if demo_mode:
@@ -483,6 +496,7 @@ def run(
       return_full_episode_data=return_full_episode_data,
       process_episodes_fn=process_episodes_fn,
       check_episode_fn=check_episode_fn,
+      agent=agent
   )
 
   return results
