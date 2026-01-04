@@ -43,7 +43,17 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     self.task_no += 1
     self.current_task_name = "Task-" + str(self.task_no) + "-" +  str(task_name)
 
-    self._send_rpc_request("new-agent", {"type": "Android", "deviceId": os.environ.get("MIDSCENE_DEVICE_ID"), "id": self.current_task_name})
+    device = { "type": "Android" }
+    
+    if os.environ.get("MIDSCENE_DEVICE_TYPE") == "Local":
+      device["deviceId"] = os.environ.get("MIDSCENE_DEVICE_ID", "")
+    else:
+      device["host"] = os.environ.get("MIDSCENE_DEVICE_HOST", "")
+      device["port"] = os.environ.get("MIDSCENE_DEVICE_PORT", "")
+
+
+
+    self._send_rpc_request("new-agent", {"type": "Android", "device": device, "id": self.current_task_name})
 
     self.step_count = 0
 
