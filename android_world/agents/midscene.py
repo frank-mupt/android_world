@@ -31,10 +31,6 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
   def reset(self, go_home: bool = False) -> None:
     super().reset(go_home)
-    self.history = []
-    self.run_log = []
-    self.task_status = {}
-    self.task_no = 0
     self.step_count = 0
 
   def start_new_task(self, task_name: str) -> None:
