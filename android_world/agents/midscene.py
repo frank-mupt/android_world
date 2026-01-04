@@ -96,8 +96,16 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         "params": params,
         "id": time.time()
     }
-    response = requests.post(self.rpc_url, headers=headers, json=payload)
-    print("[MidsceneAgent] RPC Response: " + response.text)
+
+    request_cnt = 0;
+
+    while request_cnt < 3:
+      request_cnt += 1
+      try: 
+        response = requests.post(self.rpc_url, headers=headers, json=payload)
+        break
+      except Exception as e:
+        print("[MidsceneAgent] RPC Request Failed: " + str(e) + "; Retry: " + str(request_cnt))
 
     response.raise_for_status()
     return response.json()
