@@ -2,6 +2,7 @@
 """ Midscene Agent"""
 
 
+from turtle import resetscreen
 from android_world.agents import base_agent
 from android_world.env import interface
 
@@ -40,7 +41,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     self.current_task_name = "Task-" + str(self.task_no) + "-" +  str(task_name)
 
     device = { "type": "Android" }
-    
+
     if os.environ.get("MIDSCENE_DEVICE_TYPE") == "Local":
       device["deviceId"] = os.environ.get("MIDSCENE_DEVICE_ID", "")
     else:
@@ -59,7 +60,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     goal: The goal.
     """
     self.step_count += 1
-    
+
     print("[MidsceneAgent] Step: " + str(self.step_count)  + "; Goal: " + goal  )
 
     midscene_res = self._send_rpc_request("run-ai-method", {"id": self.current_task_name, "task": goal})
@@ -76,12 +77,12 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         done=False,
         data={},
       )
-  
+
   def update_task_status(self, status: str = 'Failed') -> None:
     self.task_status[self.current_task_name] = status
     self._send_rpc_request("terminate-agent", {"id": self.current_task_name, "userTaskStatus": self.task_status.get(self.current_task_name, 'Failed')})
 
-  def _init_json_rpc(self): 
+  def _init_json_rpc(self):
     """Initializes the JSON-RPC connection to the Midscene server."""
     self.rpc_url = os.environ.get("MIDSCENE_BENCH_RPC_URL")
     if not self.rpc_url:
@@ -99,18 +100,22 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
     request_cnt = 0;
 
+    response = None
+
     while request_cnt < 3:
       request_cnt += 1
-      try: 
+      try:
         response = requests.post(self.rpc_url, headers=headers, json=payload)
         break
       except Exception as e:
         print("[MidsceneAgent] RPC Request Failed: " + str(e) + "; Retry: " + str(request_cnt))
 
+
+    if response is None:
+      raise RuntimeError("[MidsceneAgent] Failed to send RPC request")
+
     response.raise_for_status()
-    return response.json()
-    
+    result = response.json()
+    print("[MidsceneAgent] RPC Response: " + str(result))
 
-    
-    
-
+    return result
