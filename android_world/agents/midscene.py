@@ -2,13 +2,9 @@
 """ Midscene Agent"""
 
 
-from turtle import resetscreen
 from android_world.agents import base_agent
 from android_world.env import interface
 
-import subprocess
-import re
-import json
 import requests
 import os
 import time

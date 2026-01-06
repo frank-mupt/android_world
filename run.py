@@ -112,6 +112,13 @@ _TASKS = flags.DEFINE_list(
     'List of specific tasks to run in the given suite family. If None, run all'
     ' tasks in the suite family.',
 )
+
+_TASK_GROUP_ID = flags.DEFINE_string(
+    'task_group_id',
+    'all',
+    'Task group id to run. If "all", run all tasks. If "G1", "G2", ..., run that group.',
+)
+
 _N_TASK_COMBINATIONS = flags.DEFINE_integer(
     'n_task_combinations',
     1,
@@ -215,11 +222,19 @@ def _main() -> None:
 
   n_task_combinations = _N_TASK_COMBINATIONS.value
   task_registry = registry.TaskRegistry()
+
+  tasks = _TASKS.value
+  if not tasks:
+    task_group = task_registry.get_task_group(_TASK_GROUP_ID.value)
+    if not task_group:
+      raise ValueError(f'Task group {_TASK_GROUP_ID.value} is empty or invalid.')
+    tasks = [t.__name__ for t in task_group]
+
   suite = suite_utils.create_suite(
       task_registry.get_registry(family=_SUITE_FAMILY.value),
       n_task_combinations=n_task_combinations,
       seed=_TASK_RANDOM_SEED.value,
-      tasks=_TASKS.value,
+      tasks=tasks,
       use_identical_params=_FIXED_TASK_SEED.value,
   )
   suite.suite_family = _SUITE_FAMILY.value

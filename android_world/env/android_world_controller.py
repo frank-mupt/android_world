@@ -32,7 +32,6 @@ from android_world.env import adb_utils
 from android_world.env import representation_utils
 from android_world.utils import file_utils
 import dm_env
-from os import os
 
 
 def _has_wrapper(

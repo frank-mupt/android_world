@@ -21,7 +21,7 @@ from android_world.env import android_world_controller
 from android_world.env import interface
 from android_world.env.setup_device import setup
 from android_world.utils import datetime_utils
-from os import os
+import os
 
 
 # AndroidWorld is tested and developed on Pixel 6 with API 33. Other

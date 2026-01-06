@@ -32,3 +32,5 @@ midscene_run/log
 .env
 
 *.log
+
+AGENTS.md
