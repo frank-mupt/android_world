@@ -32,6 +32,7 @@ from android_world.env import adb_utils
 from android_world.env import representation_utils
 from android_world.utils import file_utils
 import dm_env
+from os import os
 
 
 def _has_wrapper(
@@ -307,7 +308,7 @@ max_episode_sec: 7200  # Prevent infinite episodes.
 def get_controller(
     console_port: int = 5554,
     adb_path: str = DEFAULT_ADB_PATH,
-    grpc_port: int = 8554,
+    grpc_port: int = os.getenv("MIDSCENE_RPC_PORT", 8554),
 ) -> AndroidWorldController:
   """Creates a controller by connecting to an existing Android environment."""
 

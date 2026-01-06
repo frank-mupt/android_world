@@ -21,6 +21,7 @@ from android_world.env import android_world_controller
 from android_world.env import interface
 from android_world.env.setup_device import setup
 from android_world.utils import datetime_utils
+from os import os
 
 
 # AndroidWorld is tested and developed on Pixel 6 with API 33. Other
@@ -98,7 +99,7 @@ def load_and_setup_env(
     emulator_setup: bool = False,
     freeze_datetime: bool = True,
     adb_path: str = android_world_controller.DEFAULT_ADB_PATH,
-    grpc_port: int = 8554,
+    grpc_port: int = os.getenv("MIDSCENE_RPC_PORT", 8554),
 ) -> interface.AsyncEnv:
   """Create environment with `get_env()` and perform env setup and validation.
 
@@ -106,7 +107,7 @@ def load_and_setup_env(
 
   ```
   AVD_NAME=Pixel_6_API_33  # First create an AVD in Android Studio.
-  ~/Android/Sdk/emulator/emulator -avd $AVD_NAME -no-snapshot -grpc 8554
+  ~/Android/Sdk/emulator/emulator -avd $AVD_NAME -no-snapshot -grpc $MIDSCENE_RPC_PORT
   ```
 
   Args:
