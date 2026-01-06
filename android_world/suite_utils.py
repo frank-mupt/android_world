@@ -476,6 +476,7 @@ def run(
             else None
         ),
         task_name=task.name,
+        task_id=task.id,
     )
 
   if demo_mode:

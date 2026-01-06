@@ -227,8 +227,9 @@ class TaskRegistry:
     task_registry[task_class.__name__] = task_class
 
   def __init__(self):
-    for task in self._TASKS:
+    for index, task in enumerate(self._TASKS):
       self.register_task(self.ANDROID_TASK_REGISTRY, task)
+      task.id = index
 
   # Add names with "." notation for autocomplete in Colab.
   names = types.SimpleNamespace(**{

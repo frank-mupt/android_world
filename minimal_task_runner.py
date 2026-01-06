@@ -112,7 +112,7 @@ def _main() -> None:
   task = task_type(params)
   task.initialize_task(env)
   agent = midscene.MidsceneAgent(env)
-  agent.start_new_task(task.name)
+  agent.start_new_task(task.name, task.id)
 
   print('Goal: ' + str(task.goal))
   is_done = False

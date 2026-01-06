@@ -28,17 +28,15 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     self._init_json_rpc();
     self.step_count = 0
     self.task_status = {}
-    self.task_no = 0
 
   def reset(self, go_home: bool = False) -> None:
     super().reset(go_home)
     self.step_count = 0
 
-  def start_new_task(self, task_name: str) -> None:
+  def start_new_task(self, task_name: str, task_id: str) -> None:
     """Starts a new task."""
     print("[MidsceneAgent] Starting new task: " + task_name)
-    self.task_no += 1
-    self.current_task_name = "Task-" + str(self.task_no) + "-" +  str(task_name)
+    self.current_task_name = "Task-" + task_id + "-" +  str(task_name)
 
     device = { "type": "Android" }
 
@@ -99,7 +97,6 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     }
 
     request_cnt = 0;
-
     response = None
 
     while request_cnt < 3:

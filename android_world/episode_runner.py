@@ -47,6 +47,7 @@ def run_episode(
     termination_fn: Callable[[interface.AsyncEnv], float] | None = None,
     print_fn: Callable[[str], None] = print,
     task_name: str = '',
+    task_id: str = 'unknown-id',
 ) -> EpisodeResult:
   """Runs an agent on goal, e.g., "turn off wifi".
 
@@ -80,7 +81,7 @@ def run_episode(
  
 
   if isinstance(agent, midscene.MidsceneAgent):
-    agent.start_new_task(task_name)
+    agent.start_new_task(task_name, task_id)
 
   output = []
   for step_n in range(max_n_steps):
