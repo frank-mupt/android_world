@@ -31,7 +31,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
   def start_new_task(self, task_name: str, task_id: str) -> None:
     """Starts a new task."""
-    print("[MidsceneAgent] Starting new task: " + task_name)
+    self._formatted_console("Starting new task, name:  " + task_name + " id: " + task_id)
     self.current_task_name = "Task-" + task_id + "-" +  str(task_name)
 
     device = { "type": "Android" }
@@ -55,16 +55,24 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     """
     self.step_count += 1
 
-    print("[MidsceneAgent] Step: " + str(self.step_count)  + "; Goal: " + goal  )
+    self._formatted_console("Step: " + str(self.step_count)  + "; Goal: " + goal  )
 
     midscene_res = self._send_rpc_request("run-ai-method", {"id": self.current_task_name, "task": goal})
+
 
     self.run_log.append(midscene_res)
 
     if midscene_res['result']['code'] == 1:
-       return base_agent.AgentInteractionResult(
+       
+      action_raw_res = midscene_res['result'].get('data', '')
+
+      self.env.interaction_cache = str(action_raw_res)
+
+      return base_agent.AgentInteractionResult(
         done=True,
-        data=midscene_res['result']['data'],
+        data={ 
+          "midscene_action_response": action_raw_res
+        },
       )
     else:
       return base_agent.AgentInteractionResult(
@@ -101,7 +109,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         response = requests.post(self.rpc_url, headers=headers, json=payload)
         break
       except Exception as e:
-        print("[MidsceneAgent] RPC Request Failed: " + str(e) + "; Retry: " + str(request_cnt))
+        self._formatted_console("RPC Request Failed: " + str(e) + "; Retry: " + str(request_cnt))
 
 
     if response is None:
@@ -109,6 +117,10 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
     response.raise_for_status()
     result = response.json()
-    print("[MidsceneAgent] RPC Response: " + str(result))
+    self._formatted_console("RPC Response: " + str(result))
 
     return result
+
+  def _formatted_console(self, content: str) -> None:
+    """Formats the console output."""
+    print("[MidsceneAgent] " + content)
