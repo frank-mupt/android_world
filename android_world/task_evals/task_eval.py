@@ -39,7 +39,7 @@ class TaskEval(abc.ABC):
 
   start_on_home_screen = True
 
-  id = "unknown_id"
+  id = "unknown-id"
 
   def __init__(self, params: dict[str, Any]):
     self.initialized = False

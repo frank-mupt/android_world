@@ -282,7 +282,16 @@ class TaskRegistry:
   def __init__(self):
     for index, task in enumerate(self._TASKS):
       self.register_task(self.ANDROID_TASK_REGISTRY, task)
-      task.id = index
+      task.id = str(index)
+
+    offset = len(self.ANDROID_TASK_REGISTRY)
+
+    for index, task_name in enumerate(
+        sorted(self.INFORMATION_RETRIEVAL_TASK_REGISTRY.keys())
+    ):
+      task = self.INFORMATION_RETRIEVAL_TASK_REGISTRY[task_name]
+      task.id = str(offset + index)
+      
 
   # Add names with "." notation for autocomplete in Colab.
   names = types.SimpleNamespace(**{
