@@ -284,7 +284,7 @@ class TaskRegistry:
     sorted_tasks = sorted(self._TASKS, key=lambda t: t.__name__)
     for index, task in enumerate(sorted_tasks):
       self.register_task(self.ANDROID_TASK_REGISTRY, task)
-      task.id = str(index)
+      task.id = str(index + 1)
 
     offset = len(self.ANDROID_TASK_REGISTRY)
 
@@ -292,7 +292,7 @@ class TaskRegistry:
         sorted(self.INFORMATION_RETRIEVAL_TASK_REGISTRY.keys())
     ):
       task = self.INFORMATION_RETRIEVAL_TASK_REGISTRY[task_name]
-      task.id = str(offset + index)
+      task.id = str(offset + index + 1)
       
 
   # Add names with "." notation for autocomplete in Colab.
