@@ -280,7 +280,9 @@ class TaskRegistry:
     task_registry[task_class.__name__] = task_class
 
   def __init__(self):
-    for index, task in enumerate(self._TASKS):
+    # Sort tasks alphabetically by name to ensure consistent and ordered IDs.
+    sorted_tasks = sorted(self._TASKS, key=lambda t: t.__name__)
+    for index, task in enumerate(sorted_tasks):
       self.register_task(self.ANDROID_TASK_REGISTRY, task)
       task.id = str(index)
 
