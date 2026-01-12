@@ -16,6 +16,7 @@
 
 import random
 import time
+from absl import logging
 from typing import Any
 from android_world.env import adb_utils
 from android_world.env import device_constants
@@ -97,11 +98,17 @@ class BrowserTask(task_eval.TaskEval):
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
     state = env.get_state()
+
     package_name = adb_utils.extract_package_name(
         adb_utils.get_current_activity(env.controller)[0]
     )
+
+    logging.info("BrowserTask the target package_name: %s", package_name)
+
     if package_name != 'com.android.chrome':
       return 0.0
+    
+    logging.info("BrowserTask the ui_elements: %s", state.ui_elements)
 
     for element in state.ui_elements:
       if element.text == 'Success!':

@@ -45,7 +45,7 @@ from dotenv import load_dotenv;
 load_dotenv()
 
 
-logging.set_verbosity(logging.WARNING)
+logging.set_verbosity(logging.DEBUG)
 
 os.environ['GRPC_VERBOSITY'] = 'ERROR'  # Only show errors
 os.environ['GRPC_TRACE'] = 'none'  # Disable tracing

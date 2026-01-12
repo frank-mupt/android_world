@@ -271,6 +271,9 @@ def get_current_activity(
     return (None, response)
 
   activity = response.get_current_activity.full_activity
+
+  logging.info('Current activity: %r', activity)
+  
   return (activity, response)
 
 

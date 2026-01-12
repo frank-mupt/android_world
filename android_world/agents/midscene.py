@@ -49,6 +49,11 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     self.step_count = 0
 
 
+  # Set max steps of all tasks to be 1
+  def set_max_steps(self, max_steps: int) -> None:
+    self._max_steps = 1
+
+
   def step(self, goal: str, ) -> base_agent.AgentInteractionResult:
     """Performs a step of the agent on the environment.
     goal: The goal.

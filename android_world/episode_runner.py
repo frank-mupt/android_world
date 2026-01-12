@@ -15,6 +15,7 @@
 """Runs an agent on the environment."""
 
 import dataclasses
+from absl import logging
 from typing import Any, Callable, Optional
 from android_world import constants
 from android_world.agents import base_agent, midscene
@@ -78,13 +79,14 @@ def run_episode(
   agent.reset(start_on_home_screen)
   agent.set_max_steps(max_n_steps)
 
- 
-
   if isinstance(agent, midscene.MidsceneAgent):
     agent.start_new_task(task_name, task_id)
 
   output = []
-  for step_n in range(max_n_steps):
+
+  logging.info('The max steps of %s is %d', task_name, agent._max_steps)
+
+  for step_n in range(agent._max_steps):
     result = agent.step(goal)
     print_fn('Completed step {:d}.'.format(step_n + 1))
     assert constants.STEP_NUMBER not in result.data
