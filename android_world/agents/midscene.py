@@ -8,6 +8,7 @@ from android_world.env import interface
 import requests
 import os
 import time
+import math
 
 
 class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
@@ -102,7 +103,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         "jsonrpc": "2.0",
         "method": method,
         "params": params,
-        "id": time.time()
+        "id": math.floor(time.time())
     }
 
     request_cnt = 0;
@@ -118,7 +119,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
 
     if response is None:
-      raise RuntimeError("[MidsceneAgent] Failed to send RPC request")
+      raise RuntimeError(self._formatted_console("Failed to send RPC request"))
 
     response.raise_for_status()
     result = response.json()
