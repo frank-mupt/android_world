@@ -25,6 +25,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     self._init_json_rpc();
     self.step_count = 0
     self.task_status = {}
+    self.failed_step_reason = ''
 
   def reset(self, go_home: bool = False) -> None:
     super().reset(go_home)
@@ -42,8 +43,6 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
     else:
       device["host"] = os.environ.get("MIDSCENE_DEVICE_HOST", "")
       device["port"] = os.environ.get("MIDSCENE_DEVICE_PORT", "")
-
-
 
     self._send_rpc_request("new-agent", {"type": "Android", "device": device, "id": self.current_task_name})
 
@@ -68,6 +67,8 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
     self.run_log.append(midscene_res)
 
+    self.failed_step_reason = '';
+
     if midscene_res['result']['code'] == 1:
        
       action_raw_res = midscene_res['result'].get('data', '')
@@ -81,6 +82,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         },
       )
     else:
+      self.failed_step_reason = midscene_res['result']['data'].get('reason', '')
       return base_agent.AgentInteractionResult(
         done=False,
         data={},
@@ -88,7 +90,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
   def update_task_status(self, status: str = 'Failed') -> None:
     self.task_status[self.current_task_name] = status
-    self._send_rpc_request("terminate-agent", {"id": self.current_task_name, "userTaskStatus": self.task_status.get(self.current_task_name, 'Failed')})
+    self._send_rpc_request("terminate-agent", {"id": self.current_task_name, "userTaskStatus": self.task_status.get(self.current_task_name, 'Failed'),  'agentStepError':  self.failed_step_reason })
 
   def _init_json_rpc(self):
     """Initializes the JSON-RPC connection to the Midscene server."""
