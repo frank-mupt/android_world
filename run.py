@@ -36,10 +36,15 @@ from android_world.agents import m3a
 from android_world.agents import random_agent
 from android_world.agents import seeact
 from android_world.agents import t3a
+from android_world.agents import midscene
 from android_world.env import env_launcher
 from android_world.env import interface
 
-logging.set_verbosity(logging.WARNING)
+from dotenv import load_dotenv;
+
+load_dotenv()
+
+logging.set_verbosity(logging.DEBUG)
 
 os.environ['GRPC_VERBOSITY'] = 'ERROR'  # Only show errors
 os.environ['GRPC_TRACE'] = 'none'  # Disable tracing
@@ -49,7 +54,7 @@ def _find_adb_directory() -> str:
   """Returns the directory where adb is located."""
   potential_paths = [
       os.path.expanduser('~/Library/Android/sdk/platform-tools/adb'),
-      os.path.expanduser('~/Android/Sdk/platform-tools/adb'),
+      os.path.expanduser(os.environ.get('ANDROID_SDK_ROOT', '~/Android/Sdk') + '/platform-tools/adb'),
   ]
   for path in potential_paths:
     if os.path.isfile(path):
@@ -178,6 +183,8 @@ def _get_agent(
   # SeeAct.
   elif _AGENT_NAME.value == 'seeact':
     agent = seeact.SeeAct(env)
+  elif _AGENT_NAME.value == 'midscene':
+    agent = midscene.MidsceneAgent(env)
 
   if not agent:
     raise ValueError(f'Unknown agent: {_AGENT_NAME.value}')
