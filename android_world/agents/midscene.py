@@ -105,7 +105,7 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
         "jsonrpc": "2.0",
         "method": method,
         "params": params,
-        "id": math.floor(time.time())
+        "id": time.time()
     }
 
     request_cnt = 0;
