@@ -33,19 +33,13 @@ from android_world.agents import base_agent
 from android_world.agents import human_agent
 from android_world.agents import infer
 from android_world.agents import m3a
-from android_world.agents import midscene
 from android_world.agents import random_agent
 from android_world.agents import seeact
 from android_world.agents import t3a
 from android_world.env import env_launcher
 from android_world.env import interface
 
-from dotenv import load_dotenv;
-
-load_dotenv()
-
-
-logging.set_verbosity(logging.DEBUG)
+logging.set_verbosity(logging.WARNING)
 
 os.environ['GRPC_VERBOSITY'] = 'ERROR'  # Only show errors
 os.environ['GRPC_TRACE'] = 'none'  # Disable tracing
@@ -55,7 +49,7 @@ def _find_adb_directory() -> str:
   """Returns the directory where adb is located."""
   potential_paths = [
       os.path.expanduser('~/Library/Android/sdk/platform-tools/adb'),
-      os.path.expanduser(os.environ.get('ANDROID_SDK_ROOT', '~/Android/Sdk') + '/platform-tools/adb'),
+      os.path.expanduser('~/Android/Sdk/platform-tools/adb'),
   ]
   for path in potential_paths:
     if os.path.isfile(path):
@@ -112,13 +106,6 @@ _TASKS = flags.DEFINE_list(
     'List of specific tasks to run in the given suite family. If None, run all'
     ' tasks in the suite family.',
 )
-
-_TASK_GROUP_ID = flags.DEFINE_string(
-    'task_group_id',
-    'all',
-    'Task group id to run. If "all", run all tasks. If "G1", "G2", ..., run that group.',
-)
-
 _N_TASK_COMBINATIONS = flags.DEFINE_integer(
     'n_task_combinations',
     1,
@@ -191,11 +178,6 @@ def _get_agent(
   # SeeAct.
   elif _AGENT_NAME.value == 'seeact':
     agent = seeact.SeeAct(env)
-    # Midscene.
-  elif _AGENT_NAME.value == 'midscene':
-    agent = midscene.MidsceneAgent(env)
-
-
 
   if not agent:
     raise ValueError(f'Unknown agent: {_AGENT_NAME.value}')
@@ -222,19 +204,11 @@ def _main() -> None:
 
   n_task_combinations = _N_TASK_COMBINATIONS.value
   task_registry = registry.TaskRegistry()
-
-  tasks = _TASKS.value
-  if not tasks:
-    task_group = task_registry.get_task_group(_TASK_GROUP_ID.value)
-    if not task_group:
-      raise ValueError(f'Task group {_TASK_GROUP_ID.value} is empty or invalid.')
-    tasks = [t.__name__ for t in task_group]
-
   suite = suite_utils.create_suite(
       task_registry.get_registry(family=_SUITE_FAMILY.value),
       n_task_combinations=n_task_combinations,
       seed=_TASK_RANDOM_SEED.value,
-      tasks=tasks,
+      tasks=_TASKS.value,
       use_identical_params=_FIXED_TASK_SEED.value,
   )
   suite.suite_family = _SUITE_FAMILY.value

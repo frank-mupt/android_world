@@ -107,7 +107,8 @@ class TaskRegistry:
     else:
       raise ValueError(f'Unsupported family: {family}')
 
-  _TASKS_1 = (
+  _TASKS = (
+      # keep-sorted start
       audio_recorder.AudioRecorderRecordAudio,
       audio_recorder.AudioRecorderRecordAudioWithFileName,
       browser.BrowserDraw,
@@ -117,9 +118,6 @@ class TaskRegistry:
       calendar.SimpleCalendarAddOneEventInTwoWeeks,
       calendar.SimpleCalendarAddOneEventRelativeDay,
       calendar.SimpleCalendarAddOneEventTomorrow,
-  )
-
-  _TASKS_2 = (
       calendar.SimpleCalendarAddRepeatingEvent,
       calendar.SimpleCalendarDeleteEvents,
       calendar.SimpleCalendarDeleteEventsOnRelativeDay,
@@ -129,9 +127,6 @@ class TaskRegistry:
       clock.ClockStopWatchPausedVerify,
       clock.ClockStopWatchRunning,
       clock.ClockTimerEntry,
-  )
-
-  _TASKS_3 = (
       contacts.ContactsAddContact,
       contacts.ContactsNewContactDraft,
       expense.ExpenseAddMultiple,
@@ -141,9 +136,6 @@ class TaskRegistry:
       expense.ExpenseDeleteDuplicates,
       expense.ExpenseDeleteDuplicates2,
       expense.ExpenseDeleteMultiple,
-  )
-
-  _TASKS_4 = (
       expense.ExpenseDeleteMultiple2,
       expense.ExpenseDeleteSingle,
       files.FilesDeleteFile,
@@ -153,9 +145,6 @@ class TaskRegistry:
       markor.MarkorCreateFolder,
       markor.MarkorCreateNote,
       markor.MarkorCreateNoteFromClipboard,
-  )
-
-  _TASKS_5 = (
       markor.MarkorDeleteAllNotes,
       markor.MarkorDeleteNewestNote,
       markor.MarkorDeleteNote,
@@ -164,10 +153,9 @@ class TaskRegistry:
       markor.MarkorMoveNote,
       markor.MarkorTranscribeReceipt,
       markor.MarkorTranscribeVideo,
+      # Markor composite tasks.
       markor_sms.MarkorCreateNoteAndSms,
-  )
-
-  _TASKS_6 = (
+      # OsmAnd.
       osmand.OsmAndFavorite,
       osmand.OsmAndMarker,
       osmand.OsmAndTrack,
@@ -177,9 +165,6 @@ class TaskRegistry:
       recipe.RecipeAddMultipleRecipesFromMarkor2,
       recipe.RecipeAddSingleRecipe,
       recipe.RecipeDeleteDuplicateRecipes,
-  )
-
-  _TASKS_7 = (
       recipe.RecipeDeleteDuplicateRecipes2,
       recipe.RecipeDeleteDuplicateRecipes3,
       recipe.RecipeDeleteMultipleRecipes,
@@ -189,9 +174,6 @@ class TaskRegistry:
       recipe.RecipeDeleteSingleWithRecipeWithNoise,
       retro_music.RetroCreatePlaylist,
       retro_music.RetroPlayingQueue,
-  )
-
-  _TASKS_8 = (
       retro_music.RetroPlaylistDuration,
       retro_music.RetroSavePlaylist,
       simple_draw_pro.SimpleDrawProCreateDrawing,
@@ -201,9 +183,6 @@ class TaskRegistry:
       sms.SimpleSmsResend,
       sms.SimpleSmsSend,
       sms.SimpleSmsSendClipboardContent,
-  )
-
-  _TASKS_9 = (
       sms.SimpleSmsSendReceivedAddress,
       system.OpenAppTaskEval,
       system.SystemBluetoothTurnOff,
@@ -213,9 +192,6 @@ class TaskRegistry:
       system.SystemBrightnessMax,
       system.SystemBrightnessMaxVerify,
       system.SystemBrightnessMin,
-  )
-
-  _TASKS_10 = (
       system.SystemBrightnessMinVerify,
       system.SystemCopyToClipboard,
       system.SystemWifiTurnOff,
@@ -224,6 +200,8 @@ class TaskRegistry:
       system.SystemWifiTurnOnVerify,
       system_composite.TurnOffWifiAndTurnOnBluetooth,
       system_composite.TurnOnWifiAndOpenApp,
+      # keep-sorted end
+      # VLC media player tasks.
       vlc.VlcCreatePlaylist,
       vlc.VlcCreateTwoPlaylists,
       # Phone operations are flaky and the root cause is not known. Disabling
@@ -236,37 +214,6 @@ class TaskRegistry:
       # phone.PhoneReturnMissedCall,
       # sms.SimpleSmsSendAfterCall,
   )
-
-  _TASKS = (
-      *_TASKS_1,
-      *_TASKS_2,
-      *_TASKS_3,
-      *_TASKS_4,
-      *_TASKS_5,
-      *_TASKS_6,
-      *_TASKS_7,
-      *_TASKS_8,
-      *_TASKS_9,
-      *_TASKS_10,
-  )
-
-  @classmethod
-  def get_task_group(cls, group_id: str) -> tuple:
-    if group_id == 'all':
-      return cls._TASKS
-    groups = {
-        'G1': cls._TASKS_1,
-        'G2': cls._TASKS_2,
-        'G3': cls._TASKS_3,
-        'G4': cls._TASKS_4,
-        'G5': cls._TASKS_5,
-        'G6': cls._TASKS_6,
-        'G7': cls._TASKS_7,
-        'G8': cls._TASKS_8,
-        'G9': cls._TASKS_9,
-        'G10': cls._TASKS_10,
-    }
-    return groups.get(str(group_id), ())
 
   def register_task(
       self, task_registry: dict[Any, Any], task_class: type[task_eval.TaskEval]
@@ -293,7 +240,6 @@ class TaskRegistry:
     ):
       task = self.INFORMATION_RETRIEVAL_TASK_REGISTRY[task_name]
       task.id = str(offset + index + 1)
-      
 
   # Add names with "." notation for autocomplete in Colab.
   names = types.SimpleNamespace(**{
