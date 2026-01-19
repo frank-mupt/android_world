@@ -99,7 +99,7 @@ def load_and_setup_env(
     emulator_setup: bool = False,
     freeze_datetime: bool = True,
     adb_path: str = android_world_controller.DEFAULT_ADB_PATH,
-    grpc_port: int = os.getenv("MIDSCENE_RPC_PORT", 8554),
+    grpc_port: int = int(os.getenv("MIDSCENE_RPC_PORT", 8554)),
 ) -> interface.AsyncEnv:
   """Create environment with `get_env()` and perform env setup and validation.
 

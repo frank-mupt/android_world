@@ -80,11 +80,11 @@ _EMULATOR_SETUP = flags.DEFINE_boolean(
 )
 _DEVICE_CONSOLE_PORT = flags.DEFINE_integer(
     'console_port',
-    5554,
+    int(os.getenv('ANDROID_CONSOLE_PORT', 5554)),
     'The console port of the running Android device. This can usually be'
     ' retrieved by looking at the output of `adb devices`. In general, the'
     ' first connected device is port 5554, the second is 5556, and'
-    ' so on.',
+    ' so on. Can also be set via ANDROID_CONSOLE_PORT environment variable.',
 )
 
 _SUITE_FAMILY = flags.DEFINE_enum(
