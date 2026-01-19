@@ -55,6 +55,19 @@ class SimpleDrawProCreateDrawing(task_eval.TaskEval):
     exists = file_utils.check_file_or_folder_exists(
         file_name, self.create_file_task.data_directory, env.controller
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SimpleDrawProCreateDrawing Evaluation Details:')
+      print(f'  - Expected file name: {file_name}')
+      print(f'  - Directory: {self.create_file_task.data_directory}')
+      print(f'  - File exists: {exists}')
+      print(f'  - Validation result: {exists}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     return 1.0 if exists else 0.0
 
   @classmethod

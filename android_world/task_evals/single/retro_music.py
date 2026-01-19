@@ -161,13 +161,27 @@ class RetroCreatePlaylist(task_eval.TaskEval):
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
     actual = _get_playlist_data(env)
-    return int(
-        sqlite_validators.verify_playlist(
-            actual,
-            self.params['playlist_name'],
-            [f.split('.')[0] for f in self.params['files']],
-        )
+    expected_files = [f.split('.')[0] for f in self.params['files']]
+    verified = sqlite_validators.verify_playlist(
+        actual,
+        self.params['playlist_name'],
+        expected_files,
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('RetroCreatePlaylist Evaluation Details:')
+      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
+      print(f'  - Expected files: {expected_files}')
+      print(f'  - Actual playlist data: {actual}')
+      print(f'  - Playlist verified: {verified}')
+      print(f'  - Validation result: {verified}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return int(verified)
 
   def tear_down(self, env: interface.AsyncEnv):
     super().tear_down(env)
@@ -203,7 +217,21 @@ class RetroPlayingQueue(RetroCreatePlaylist):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     queue = _get_playing_queue(env)
     expected = [f.split('.')[0] for f in self.params['files']]
-    return int(queue == expected)
+    match = queue == expected
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('RetroPlayingQueue Evaluation Details:')
+      print(f'  - Expected queue: {expected}')
+      print(f'  - Actual queue: {queue}')
+      print(f'  - Queue match: {match}')
+      print(f'  - Validation result: {match}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return int(match)
 
 
 class RetroSavePlaylist(RetroCreatePlaylist):
@@ -222,15 +250,31 @@ class RetroSavePlaylist(RetroCreatePlaylist):
     )
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
+    playlist_file = self.params['playlist_name'] + '.m3u'
     playlist_exists = file_utils.check_file_exists(
         file_utils.convert_to_posix_path(
             device_constants.DOWNLOAD_DATA,
-            self.params['playlist_name'] + '.m3u',
+            playlist_file,
         ),
         env.controller,
     )
+    playlist_score = super().is_successful(env)
+    combined = (playlist_score + int(playlist_exists)) / 2.0
 
-    return (super().is_successful(env) + int(playlist_exists)) / 2.0
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('RetroSavePlaylist Evaluation Details:')
+      print(f'  - Expected export file: {playlist_file}')
+      print(f'  - Export file exists: {playlist_exists}')
+      print(f'  - Playlist creation score: {playlist_score}')
+      print(f'  - Combined score: {combined}')
+      print(f'  - Validation result: {combined > 0.5}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return combined
 
 
 def _generate_list_with_sum(n, m):
@@ -286,11 +330,41 @@ class RetroPlaylistDuration(RetroCreatePlaylist):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     songs = _get_playlist_data(env)
     total_ms = 0
+    matching_songs = []
     for song in songs:
       if song.playlist_name != self.params['playlist_name']:
+        # Output detailed evaluation information with protection
+        try:
+          print('\n====================== Task Result Validation ======================')
+          print('RetroPlaylistDuration Evaluation Details:')
+          print(f'  - Expected playlist name: {self.params["playlist_name"]}')
+          print(f'  - Found mismatched playlist: {song.playlist_name}')
+          print(f'  - Validation result: False')
+          print('====================== Task Result Validation ======================\n')
+        except Exception as e:
+          print(f'[Warning] Failed to print evaluation details: {e}')
         return False
       total_ms += song.duration_ms
-    return float(45 * 60 * 1000 <= total_ms <= 50 * 60 * 1000)
+      matching_songs.append(song)
+
+    duration_ok = 45 * 60 * 1000 <= total_ms <= 50 * 60 * 1000
+    total_minutes = total_ms / 60000
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('RetroPlaylistDuration Evaluation Details:')
+      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
+      print(f'  - Songs in playlist: {len(matching_songs)}')
+      print(f'  - Total duration: {total_minutes:.2f} minutes ({total_ms} ms)')
+      print(f'  - Expected range: 45-50 minutes')
+      print(f'  - Duration in range: {duration_ok}')
+      print(f'  - Validation result: {duration_ok}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return float(duration_ok)
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:

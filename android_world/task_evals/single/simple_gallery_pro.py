@@ -59,14 +59,26 @@ class SaveCopyOfReceiptTaskEval(task_eval.TaskEval):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     super().is_successful(env)
 
-    if file_utils.check_file_or_folder_exists(
-        target=self.params["file_name"],
+    file_name = self.params["file_name"]
+    exists = file_utils.check_file_or_folder_exists(
+        target=file_name,
         base_path=device_constants.DOWNLOAD_DATA,
         env=env.controller,
-    ):
-      return 1.0
+    )
 
-    return 0.0
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SaveCopyOfReceiptTaskEval Evaluation Details:')
+      print(f'  - Expected file name: {file_name}')
+      print(f'  - Directory: {device_constants.DOWNLOAD_DATA}')
+      print(f'  - File exists: {exists}')
+      print(f'  - Validation result: {exists}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if exists else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:

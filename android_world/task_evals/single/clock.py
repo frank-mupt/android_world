@@ -147,17 +147,32 @@ class ClockTimerEntry(_ClockEval):
     super().is_successful(env)
     ui_elements = env.get_state().ui_elements
     current_activity = adb_utils.get_current_activity(env.controller)[0]
-    return (
-        1.0
-        if _is_timer_set(
-            ui_elements=ui_elements,
-            current_activity=current_activity,
-            hours=self._params["hours"],
-            minutes=self._params["minutes"],
-            seconds=self._params["seconds"],
-        )
-        else 0.0
+    timer_set = _is_timer_set(
+        ui_elements=ui_elements,
+        current_activity=current_activity,
+        hours=self._params["hours"],
+        minutes=self._params["minutes"],
+        seconds=self._params["seconds"],
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('ClockTimerEntry Evaluation Details:')
+      print(f'  - Expected timer: {self._params["hours"]:02d}h {self._params["minutes"]:02d}m {self._params["seconds"]:02d}s')
+      print(f'  - Current activity: {current_activity}')
+      print(f'  - UI elements with timer info:')
+      for elem in ui_elements:
+        if elem.text or elem.content_description:
+          if 'h ' in str(elem.text) or 'hours' in str(elem.content_description):
+            print(f'    - text: {elem.text}, desc: {elem.content_description}')
+      print(f'  - Timer is set: {timer_set}')
+      print(f'  - Validation result: {timer_set}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if timer_set else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, int]:
@@ -198,14 +213,27 @@ class ClockStopWatchPausedVerify(_ClockEval):
     super().is_successful(env)
     ui_elements = env.get_state().ui_elements
     current_activity = adb_utils.get_current_activity(env.controller)[0]
-    return (
-        1.0
-        if _is_stopwatch_paused(
-            ui_elements=ui_elements,
-            current_activity=current_activity,
-        )
-        else 0.0
+    paused = _is_stopwatch_paused(
+        ui_elements=ui_elements,
+        current_activity=current_activity,
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('ClockStopWatchPausedVerify Evaluation Details:')
+      print(f'  - Current activity: {current_activity}')
+      print(f'  - UI elements:')
+      for elem in ui_elements:
+        if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
+          print(f'    - text: {elem.text}, desc: {elem.content_description}')
+      print(f'  - Stopwatch paused: {paused}')
+      print(f'  - Validation result: {paused}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if paused else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, str]:
@@ -235,14 +263,27 @@ class ClockStopWatchRunning(_ClockEval):
     super().is_successful(env)
     ui_elements = env.get_state().ui_elements
     current_activity = adb_utils.get_current_activity(env.controller)[0]
-    return (
-        1.0
-        if _is_stopwatch_running(
-            ui_elements=ui_elements,
-            current_activity=current_activity,
-        )
-        else 0.0
+    running = _is_stopwatch_running(
+        ui_elements=ui_elements,
+        current_activity=current_activity,
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('ClockStopWatchRunning Evaluation Details:')
+      print(f'  - Current activity: {current_activity}')
+      print(f'  - UI elements:')
+      for elem in ui_elements:
+        if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
+          print(f'    - text: {elem.text}, desc: {elem.content_description}')
+      print(f'  - Stopwatch running: {running}')
+      print(f'  - Validation result: {running}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if running else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, str]:

@@ -105,15 +105,30 @@ class BrowserTask(task_eval.TaskEval):
 
     logging.info("BrowserTask the target package_name: %s", package_name)
 
-    if package_name != 'com.android.chrome':
-      return 0.0
-    
+    in_chrome = package_name == 'com.android.chrome'
     logging.info("BrowserTask the ui_elements: %s", state.ui_elements)
 
+    success_found = False
     for element in state.ui_elements:
       if element.text == 'Success!':
-        return 1.0
-    return 0.0
+        success_found = True
+        break
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('BrowserTask Evaluation Details:')
+      print(f'  - Current package: {package_name}')
+      print(f'  - In Chrome app: {in_chrome}')
+      print(f'  - Success text found: {success_found}')
+      print(f'  - Validation result: {in_chrome and success_found}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    if not in_chrome:
+      return 0.0
+    return 1.0 if success_found else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:

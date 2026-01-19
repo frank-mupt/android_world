@@ -212,14 +212,26 @@ class ContactsNewContactDraft(task_eval.TaskEval):
         env.get_state().forest,
         exclude_invisible_elements=False,
     )
-    return (
-        1.0
-        if _contact_info_is_entered(
-            ui_elements=ui_elements,
-            first=self.params["first"],
-            last=self.params["last"],
-            phone=self.params["phone"],
-            phone_label=self.params["phone_label"],
-        )
-        else 0.0
+    contact_entered = _contact_info_is_entered(
+        ui_elements=ui_elements,
+        first=self.params["first"],
+        last=self.params["last"],
+        phone=self.params["phone"],
+        phone_label=self.params["phone_label"],
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('ContactsNewContactDraft Evaluation Details:')
+      print(f'  - Expected first name: {self.params["first"]}')
+      print(f'  - Expected last name: {self.params["last"]}')
+      print(f'  - Expected phone: {self.params["phone"]}')
+      print(f'  - Expected phone label: {self.params["phone_label"]}')
+      print(f'  - Contact info entered: {contact_entered}')
+      print(f'  - Validation result: {contact_entered}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if contact_entered else 0.0

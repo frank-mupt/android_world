@@ -268,7 +268,16 @@ def _run_task(
        agent.update_task_status(
             'Successful' if agent_successful > 0.5 else 'Failed'
         )
-      
+
+    # Output detailed task evaluation information for debugging
+    _log_and_print('%s', '=' * 60)
+    _log_and_print('Task Evaluation Details:')
+    _log_and_print('  - Task name: %s', task.name)
+    _log_and_print('  - Agent marked done: %s', interaction_results.done)
+    _log_and_print('  - task.is_successful() result: %s', task_successful)
+    _log_and_print('  - Final agent_successful: %s', agent_successful)
+    _log_and_print('  - Task params: %s', task.params)
+    _log_and_print('%s', '=' * 60)
 
     _log_and_print(
         '%s; %s',

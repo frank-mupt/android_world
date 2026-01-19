@@ -257,18 +257,36 @@ class SimpleSMSSendSms(task_eval.TaskEval):
     messages = self.get_sent_messages(env.controller)
     time.sleep(5)
     logging.info("During is_successful, messages: %s", messages)
+    current_time_ms = self.get_android_time(env.controller)
     sms_was_sent = was_sent(
         messages,
         phone_number=self.params["number"],
         body=self.params["message"],
-        current_time_ms=self.get_android_time(env.controller),
+        current_time_ms=current_time_ms,
     )
-    in_correct_app = (
-        adb_utils.extract_package_name(
-            adb_utils.get_current_activity(env.controller)[0]
-        )
-        == "com.simplemobiletools.smsmessenger"
-    )
+    current_activity = adb_utils.get_current_activity(env.controller)[0]
+    current_package = adb_utils.extract_package_name(current_activity)
+    in_correct_app = current_package == "com.simplemobiletools.smsmessenger"
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SimpleSMSSendSms Evaluation Details:')
+      print(f'  - Expected number: {self.params["number"]}')
+      print(f'  - Expected message: {self.params["message"]}')
+      print(f'  - Current time (ms): {current_time_ms}')
+      print(f'  - Sent messages count: {len(messages)}')
+      for i, msg in enumerate(messages):
+        print(f'    [{i}] {msg}')
+      print(f'  - SMS was sent: {sms_was_sent}')
+      print(f'  - Current activity: {current_activity}')
+      print(f'  - Current package: {current_package}')
+      print(f'  - In correct app: {in_correct_app}')
+      print(f'  - Validation result: {sms_was_sent and in_correct_app}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     if _check_if_stuck_at_sending(env):
       raise ValueError(
           "Message could not be sent due to Android/emulator issue."

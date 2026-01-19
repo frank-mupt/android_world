@@ -228,13 +228,35 @@ class OsmAndFavorite(_OsmTaskEval):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     if not file_utils.check_file_exists(_FAVORITES_PATH, env.controller):
       logging.warning('Favorites file %s not found.', _FAVORITES_PATH)
+      # Output detailed evaluation information with protection
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('OsmAndFavorite Evaluation Details:')
+        print(f'  - Expected location: {self.params["location"]}')
+        print(f'  - Favorites file exists: False')
+        print(f'  - Validation result: False')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
       return 0.0
     with file_utils.tmp_file_from_device(
         _FAVORITES_PATH, env.controller
     ) as favorites_file:
-      if _favorites_contains(
+      found = _favorites_contains(
           ElementTree.parse(favorites_file).getroot(), self.params['location']
-      ):
+      )
+      # Output detailed evaluation information with protection
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('OsmAndFavorite Evaluation Details:')
+        print(f'  - Expected location: {self.params["location"]}')
+        print(f'  - Favorites file exists: True')
+        print(f'  - Location found in favorites: {found}')
+        print(f'  - Validation result: {found}')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
+      if found:
         return super().is_successful(env)
     return 0.0
 
@@ -297,9 +319,29 @@ class OsmAndMarker(_OsmTaskEval, sqlite_validators.SQLiteApp):
   template = 'Add a location marker for {location} in the OsmAnd maps app.'
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
-    for row in self.list_rows(env):
+    rows = self.list_rows(env)
+    found = False
+    for row in rows:
       if _marker_matches_location(row, self.params['location']):
-        return super().is_successful(env)
+        found = True
+        break
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('OsmAndMarker Evaluation Details:')
+      print(f'  - Expected location: {self.params["location"]}')
+      print(f'  - Markers in DB: {len(rows)}')
+      for i, r in enumerate(rows):
+        print(f'    [{i}] lat={r.marker_lat}, lon={r.marker_lon}')
+      print(f'  - Matching marker found: {found}')
+      print(f'  - Validation result: {found}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    if found:
+      return super().is_successful(env)
     return 0.0
 
   @classmethod
@@ -428,7 +470,9 @@ class OsmAndTrack(_OsmTaskEval):
         file_utils.convert_to_posix_path(_DEVICE_FILES, 'tracks'),
         env.controller,
     ) as tracks_directory:
-      for track_file in os.listdir(tracks_directory):
+      track_files = os.listdir(tracks_directory)
+      found = False
+      for track_file in track_files:
         if _track_matches(
             _track_points(
                 ElementTree.parse(
@@ -439,7 +483,24 @@ class OsmAndTrack(_OsmTaskEval):
             ),
             self._target_waypoint_coords,
         ):
-          return super().is_successful(env)
+          found = True
+          break
+
+      # Output detailed evaluation information with protection
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('OsmAndTrack Evaluation Details:')
+        print(f'  - Expected waypoints: {self.params["waypoints"]}')
+        print(f'  - Target coords: {self._target_waypoint_coords}')
+        print(f'  - Track files found: {track_files}')
+        print(f'  - Matching track found: {found}')
+        print(f'  - Validation result: {found}')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
+
+      if found:
+        return super().is_successful(env)
     return 0.0
 
   def tear_down(self, env: interface.AsyncEnv):

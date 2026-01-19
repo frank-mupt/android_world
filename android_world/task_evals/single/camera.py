@@ -77,12 +77,27 @@ class CameraTakeVideo(_Camera):
         contents.generic.output.decode().replace("\r", "").split("\n")
     )
     logging.info("num after_videos: %s", after_videos)
+    new_videos = after_videos - self.before_videos
     logging.info(
         "number of after_videos - number of before_videos: %s",
-        len(after_videos - self.before_videos),
+        len(new_videos),
     )
+    success = len(new_videos) == 1
 
-    return 1.0 if len(after_videos - self.before_videos) == 1 else 0.0
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('CameraTakeVideo Evaluation Details:')
+      print(f'  - Videos before: {len(self.before_videos)}')
+      print(f'  - Videos after: {len(after_videos)}')
+      print(f'  - New videos: {new_videos}')
+      print(f'  - Expected new videos: 1')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if success else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:
@@ -121,12 +136,27 @@ class CameraTakePhoto(_Camera):
         contents.generic.output.decode().replace("\r", "").split("\n")
     )
     logging.info("num after_photos: %s", after_photos)
+    new_photos = after_photos - self.before_photos
     logging.info(
         "number of after_photos - number of before_photos: %s",
-        len(after_photos - self.before_photos),
+        len(new_photos),
     )
+    success = len(new_photos) == 1
 
-    return 1.0 if len(after_photos - self.before_photos) == 1 else 0.0
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('CameraTakePhoto Evaluation Details:')
+      print(f'  - Photos before: {len(self.before_photos)}')
+      print(f'  - Photos after: {len(after_photos)}')
+      print(f'  - New photos: {new_photos}')
+      print(f'  - Expected new photos: 1')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if success else 0.0
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:

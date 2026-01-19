@@ -296,17 +296,33 @@ class SimpleSmsResend(sms_validators.SimpleSMSSendSms):
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
     after_messages = self.get_sent_messages(env.controller)
-    if len(after_messages) != len(self.before_messages) + 1:
-      return 0.0
+    count_ok = len(after_messages) == len(self.before_messages) + 1
 
     # New messages get added at index 0.
-    return (
-        1.0  # pylint:disable=g-long-ternary
-        if sms_validators.sms_are_equal(
-            after_messages[0], self.before_messages[-1]
-        )
-        else 0.0
-    )
+    messages_equal = False
+    if count_ok:
+      messages_equal = sms_validators.sms_are_equal(
+          after_messages[0], self.before_messages[-1]
+      )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SimpleSmsResend Evaluation Details:')
+      print(f'  - Messages before: {len(self.before_messages)}')
+      print(f'  - Messages after: {len(after_messages)}')
+      print(f'  - Expected messages after: {len(self.before_messages) + 1}')
+      print(f'  - Message count OK: {count_ok}')
+      if count_ok:
+        print(f'  - New message: {after_messages[0] if after_messages else None}')
+        print(f'  - Last before message: {self.before_messages[-1] if self.before_messages else None}')
+        print(f'  - Messages equal: {messages_equal}')
+      print(f'  - Validation result: {count_ok and messages_equal}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if (count_ok and messages_equal) else 0.0
 
   def tear_down(self, env: interface.AsyncEnv):
     super().tear_down(env)

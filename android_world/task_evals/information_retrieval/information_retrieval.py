@@ -109,13 +109,43 @@ class InformationRetrieval(task_eval.TaskEval, abc.ABC):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     super().is_successful(env)
     if not env.interaction_cache:
+      # Output detailed evaluation information with protection
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('InformationRetrieval Evaluation Details:')
+        print(f'  - Task: {self.task}')
+        print(f'  - Interaction cache: None')
+        print(f'  - Validation result: False')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
       return 0.0
     try:
       answers_are_equal = proto_utils.check_agent_answer(
           env.interaction_cache, self.task
       )
+      # Output detailed evaluation information with protection
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('InformationRetrieval Evaluation Details:')
+        print(f'  - Task: {self.task}')
+        print(f'  - Agent answer in cache: {env.interaction_cache}')
+        print(f'  - Answers equal: {answers_are_equal}')
+        print(f'  - Validation result: {answers_are_equal}')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
       return 1.0 if answers_are_equal else 0.0
-    except ValueError:
+    except ValueError as e:
+      try:
+        print('\n====================== Task Result Validation ======================')
+        print('InformationRetrieval Evaluation Details:')
+        print(f'  - Task: {self.task}')
+        print(f'  - Error: {e}')
+        print(f'  - Validation result: False')
+        print('====================== Task Result Validation ======================\n')
+      except Exception as ex:
+        print(f'[Warning] Failed to print evaluation details: {ex}')
       return 0.0
 
   def tear_down(self, env: interface.AsyncEnv) -> None:

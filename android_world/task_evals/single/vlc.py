@@ -143,11 +143,24 @@ class VlcCreatePlaylist(_VLC):
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
     actual = _get_playlist_file_info(env)
-    return float(
-        sqlite_validators.verify_playlist(
-            actual, self.params['playlist_name'], self.params['files']
-        )
+    verified = sqlite_validators.verify_playlist(
+        actual, self.params['playlist_name'], self.params['files']
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('VlcCreatePlaylist Evaluation Details:')
+      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
+      print(f'  - Expected files: {self.params["files"]}')
+      print(f'  - Actual playlist info: {actual}')
+      print(f'  - Playlist verified: {verified}')
+      print(f'  - Validation result: {verified}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return float(verified)
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:
@@ -223,7 +236,23 @@ class VlcCreateTwoPlaylists(task_eval.TaskEval):
 
   def is_successful(self, env: interface.AsyncEnv) -> float:
     super().is_successful(env)
-    return (self.task1.is_successful(env) + self.task2.is_successful(env)) / 2
+    task1_result = self.task1.is_successful(env)
+    task2_result = self.task2.is_successful(env)
+    combined = (task1_result + task2_result) / 2
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('VlcCreateTwoPlaylists Evaluation Details:')
+      print(f'  - Playlist 1 ({self.params["playlist_name1"]}): {task1_result}')
+      print(f'  - Playlist 2 ({self.params["playlist_name2"]}): {task2_result}')
+      print(f'  - Combined score: {combined}')
+      print(f'  - Validation result: {combined > 0.5}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return combined
 
   @classmethod
   def generate_random_params(cls) -> dict[str, Any]:

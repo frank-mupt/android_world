@@ -75,6 +75,20 @@ class AudioRecorderRecordAudio(_AudioRecorder):
 
     # Check if a new audio recording is done by comparing directory contents
     one_new_file = len(changed) == 1
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('AudioRecorderRecordAudio Evaluation Details:')
+      print(f'  - Recordings before: {len(self.before_recording)}')
+      print(f'  - Recordings after: {len(after_recording)}')
+      print(f'  - New/changed recordings: {changed}')
+      print(f'  - Expected new recordings: 1')
+      print(f'  - Validation result: {one_new_file}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     return 1.0 if one_new_file else 0.0
 
   @classmethod
@@ -114,9 +128,23 @@ class AudioRecorderRecordAudioWithFileName(_AudioRecorder):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     super().is_successful(env)
     file_name = self.params["file_name"]
+    full_file_name = file_name + ".m4a"
     exists = file_utils.check_file_or_folder_exists(
-        file_name + ".m4a", self.create_file_task.data_directory, env.controller
+        full_file_name, self.create_file_task.data_directory, env.controller
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('AudioRecorderRecordAudioWithFileName Evaluation Details:')
+      print(f'  - Expected file name: {full_file_name}')
+      print(f'  - Directory: {self.create_file_task.data_directory}')
+      print(f'  - File exists: {exists}')
+      print(f'  - Validation result: {exists}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     if not exists:
       logging.info("%s not found", file_name)
       return 0.0

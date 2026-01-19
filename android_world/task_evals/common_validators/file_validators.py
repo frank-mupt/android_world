@@ -91,6 +91,21 @@ class MoveFile(task_eval.TaskEval):
         self.params["file_name"], self.dest_directory, env.controller
     )
     succeeded = not src_exists and dest_exists
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('MoveFile Evaluation Details:')
+      print(f'  - File name: {self.params["file_name"]}')
+      print(f'  - Source directory: {self.source_directory}')
+      print(f'  - Destination directory: {self.dest_directory}')
+      print(f'  - File exists in source: {src_exists} (expected: False)')
+      print(f'  - File exists in destination: {dest_exists} (expected: True)')
+      print(f'  - Validation result: {succeeded}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     return 1.0 if succeeded else 0.0
 
   @classmethod
@@ -156,6 +171,19 @@ class DeleteFile(task_eval.TaskEval):
     exists = file_utils.check_file_or_folder_exists(
         self.params["file_name"], self.data_directory, env.controller
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('DeleteFile Evaluation Details:')
+      print(f'  - File name: {self.params["file_name"]}')
+      print(f'  - Directory: {self.data_directory}')
+      print(f'  - File still exists: {exists} (expected: False)')
+      print(f'  - Validation result: {not exists}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     return 0.0 if exists else 1.0
 
   @classmethod
@@ -205,6 +233,19 @@ class CreateFile(task_eval.TaskEval):
     )
 
     if not exists:
+      # Output detailed evaluation information with protection
+      try:
+        print()
+        print('====================== Task Result Validation ======================')
+        print('CreateFile Evaluation Details:')
+        print(f'  - File name: {file_name}')
+        print(f'  - Directory: {self.data_directory}')
+        print(f'  - File exists: {exists}')
+        print(f'  - Validation result: False (file not found)')
+        print('====================== Task Result Validation ======================')
+        print()
+      except Exception as e:
+        print(f'[Warning] Failed to print evaluation details: {e}')
       logging.info("%s not found", file_name)
       return 0.0
 
@@ -219,6 +260,22 @@ class CreateFile(task_eval.TaskEval):
     )
     file_contents = res.generic.output.decode().replace("\r", "").strip()
     match = fuzzy_match_lib.fuzzy_match(file_contents, self.params["text"])
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('CreateFile Evaluation Details:')
+      print(f'  - File name: {file_name}')
+      print(f'  - Directory: {self.data_directory}')
+      print(f'  - File exists: {exists}')
+      print(f'  - Expected content: {self.params["text"]}')
+      print(f'  - Actual content: {file_contents}')
+      print(f'  - Content match: {match}')
+      print(f'  - Validation result: {match}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     if not match:
       logging.info("%s does not match %s", file_contents, self.params["text"])
       return 0.0

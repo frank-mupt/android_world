@@ -65,7 +65,21 @@ class MarkorCreateNoteAndSms(markor.Markor):
     sms_success = self.sms_task.is_successful(env)
     logging.info("SMS success: %s", sms_success)
 
-    return (markor_success + sms_success) / 2.0
+    combined = (markor_success + sms_success) / 2.0
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('MarkorCreateNoteAndSms Evaluation Details:')
+      print(f'  - Markor task score: {markor_success}')
+      print(f'  - SMS task score: {sms_success}')
+      print(f'  - Combined score: {combined}')
+      print(f'  - Validation result: {combined > 0.5}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return combined
 
   def tear_down(self, env: interface.AsyncEnv):
     super().tear_down(env)

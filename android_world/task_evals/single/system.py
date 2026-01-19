@@ -45,6 +45,19 @@ class _SystemBrightnessToggle(task_eval.TaskEval):
         env.controller,
     )
     brightness_level = int(res.generic.output.decode().strip())
+    expected_level = 255 if self.params['max_or_min'] == 'max' else 1
+    success = brightness_level == expected_level
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SystemBrightnessToggle Evaluation Details:')
+      print(f'  - Expected: {self.params["max_or_min"]} ({expected_level})')
+      print(f'  - Actual brightness level: {brightness_level}')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
 
     if self.params['max_or_min'] == 'max':
       return 1.0 if brightness_level == 255 else 0.0
@@ -134,6 +147,22 @@ class _SystemWifiToggle(task_eval.TaskEval):
         ['shell', 'settings', 'get', 'global', 'wifi_on'], env.controller
     )
     wifi_status = res.generic.output.decode().strip()
+
+    if self.params['on_or_off'] == 'on':
+      success = wifi_status in ['1', '2']
+    else:
+      success = wifi_status == '0'
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SystemWifiToggle Evaluation Details:')
+      print(f'  - Expected: WiFi {self.params["on_or_off"]}')
+      print(f'  - Actual wifi_on value: {wifi_status}')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
 
     if self.params['on_or_off'] == 'on':
       # WiFi is on when the value is either 1 or 2. If Airplane mode is on, and
@@ -227,6 +256,19 @@ class _SystemBluetoothToggle(task_eval.TaskEval):
     )
     bluetooth_status = res.generic.output.decode().strip()
     expected_status = '1' if self.params['on_or_off'] == 'on' else '0'
+    success = bluetooth_status == expected_status
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SystemBluetoothToggle Evaluation Details:')
+      print(f'  - Expected: Bluetooth {self.params["on_or_off"]} ({expected_status})')
+      print(f'  - Actual bluetooth_on value: {bluetooth_status}')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
     return 1.0 if bluetooth_status == expected_status else 0.0
 
   @classmethod
@@ -325,13 +367,23 @@ class SystemCopyToClipboard(task_eval.TaskEval):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     """Check if the clipboard content matches the expected content."""
     actual_clipboard_content = adb_utils.get_clipboard_contents(env.controller)
-    return (
-        1.0
-        if fuzzy_match_lib.fuzzy_match(
-            self.clipboard_content, actual_clipboard_content
-        )
-        else 0.0
+    match = fuzzy_match_lib.fuzzy_match(
+        self.clipboard_content, actual_clipboard_content
     )
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('SystemCopyToClipboard Evaluation Details:')
+      print(f'  - Expected content: {self.clipboard_content}')
+      print(f'  - Actual content: {actual_clipboard_content}')
+      print(f'  - Content match: {match}')
+      print(f'  - Validation result: {match}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    return 1.0 if match else 0.0
 
   def tear_down(self, env: interface.AsyncEnv) -> None:
     super().tear_down(env)
@@ -485,10 +537,23 @@ class OpenAppTaskEval(task_eval.TaskEval):
     super().is_successful(env)
     active_activity, _ = adb_utils.get_current_activity(env.controller)
     expected_package_name = _APP_NAME_TO_PACKAGE_NAME[self.params['app_name']]
-    if (
-        parse_component_name(active_activity).package_name
-        == expected_package_name
-    ):
+    actual_package_name = parse_component_name(active_activity).package_name
+    success = actual_package_name == expected_package_name
+
+    # Output detailed evaluation information with protection
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print('OpenAppTaskEval Evaluation Details:')
+      print(f'  - Expected app: {self.params["app_name"]}')
+      print(f'  - Expected package: {expected_package_name}')
+      print(f'  - Active activity: {active_activity}')
+      print(f'  - Actual package: {actual_package_name}')
+      print(f'  - Validation result: {success}')
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print evaluation details: {e}')
+
+    if success:
       return 1.0
     else:
       logging.info(
