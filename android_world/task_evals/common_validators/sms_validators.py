@@ -268,24 +268,19 @@ class SimpleSMSSendSms(task_eval.TaskEval):
     current_package = adb_utils.extract_package_name(current_activity)
     in_correct_app = current_package == "com.simplemobiletools.smsmessenger"
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('SimpleSMSSendSms Evaluation Details:')
-      print(f'  - Expected number: {self.params["number"]}')
-      print(f'  - Expected message: {self.params["message"]}')
-      print(f'  - Current time (ms): {current_time_ms}')
-      print(f'  - Sent messages count: {len(messages)}')
-      for i, msg in enumerate(messages):
-        print(f'    [{i}] {msg}')
-      print(f'  - SMS was sent: {sms_was_sent}')
-      print(f'  - Current activity: {current_activity}')
-      print(f'  - Current package: {current_package}')
-      print(f'  - In correct app: {in_correct_app}')
-      print(f'  - Validation result: {sms_was_sent and in_correct_app}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('SimpleSMSSendSms Evaluation Details:')
+    self.add_validation_log(f'  - Expected number: {self.params["number"]}')
+    self.add_validation_log(f'  - Expected message: {self.params["message"]}')
+    self.add_validation_log(f'  - Current time (ms): {current_time_ms}')
+    self.add_validation_log(f'  - Sent messages count: {len(messages)}')
+    for i, msg in enumerate(messages):
+      self.add_validation_log(f'    [{i}] {msg}')
+    self.add_validation_log(f'  - SMS was sent: {sms_was_sent}')
+    self.add_validation_log(f'  - Current activity: {current_activity}')
+    self.add_validation_log(f'  - Current package: {current_package}')
+    self.add_validation_log(f'  - In correct app: {in_correct_app}')
+    self.add_validation_log(f'  - Validation result: {sms_was_sent and in_correct_app}')
 
     if _check_if_stuck_at_sending(env):
       raise ValueError(

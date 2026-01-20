@@ -76,18 +76,13 @@ class AudioRecorderRecordAudio(_AudioRecorder):
     # Check if a new audio recording is done by comparing directory contents
     one_new_file = len(changed) == 1
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('AudioRecorderRecordAudio Evaluation Details:')
-      print(f'  - Recordings before: {len(self.before_recording)}')
-      print(f'  - Recordings after: {len(after_recording)}')
-      print(f'  - New/changed recordings: {changed}')
-      print(f'  - Expected new recordings: 1')
-      print(f'  - Validation result: {one_new_file}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('AudioRecorderRecordAudio Evaluation Details:')
+    self.add_validation_log(f'  - Recordings before: {len(self.before_recording)}')
+    self.add_validation_log(f'  - Recordings after: {len(after_recording)}')
+    self.add_validation_log(f'  - New/changed recordings: {changed}')
+    self.add_validation_log(f'  - Expected new recordings: 1')
+    self.add_validation_log(f'  - Validation result: {one_new_file}')
 
     return 1.0 if one_new_file else 0.0
 
@@ -133,17 +128,12 @@ class AudioRecorderRecordAudioWithFileName(_AudioRecorder):
         full_file_name, self.create_file_task.data_directory, env.controller
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('AudioRecorderRecordAudioWithFileName Evaluation Details:')
-      print(f'  - Expected file name: {full_file_name}')
-      print(f'  - Directory: {self.create_file_task.data_directory}')
-      print(f'  - File exists: {exists}')
-      print(f'  - Validation result: {exists}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('AudioRecorderRecordAudioWithFileName Evaluation Details:')
+    self.add_validation_log(f'  - Expected file name: {full_file_name}')
+    self.add_validation_log(f'  - Directory: {self.create_file_task.data_directory}')
+    self.add_validation_log(f'  - File exists: {exists}')
+    self.add_validation_log(f'  - Validation result: {exists}')
 
     if not exists:
       logging.info("%s not found", file_name)

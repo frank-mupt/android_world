@@ -228,16 +228,11 @@ class OsmAndFavorite(_OsmTaskEval):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     if not file_utils.check_file_exists(_FAVORITES_PATH, env.controller):
       logging.warning('Favorites file %s not found.', _FAVORITES_PATH)
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('OsmAndFavorite Evaluation Details:')
-        print(f'  - Expected location: {self.params["location"]}')
-        print(f'  - Favorites file exists: False')
-        print(f'  - Validation result: False')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('OsmAndFavorite Evaluation Details:')
+      self.add_validation_log(f'  - Expected location: {self.params["location"]}')
+      self.add_validation_log(f'  - Favorites file exists: False')
+      self.add_validation_log(f'  - Validation result: False')
       return 0.0
     with file_utils.tmp_file_from_device(
         _FAVORITES_PATH, env.controller
@@ -245,17 +240,12 @@ class OsmAndFavorite(_OsmTaskEval):
       found = _favorites_contains(
           ElementTree.parse(favorites_file).getroot(), self.params['location']
       )
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('OsmAndFavorite Evaluation Details:')
-        print(f'  - Expected location: {self.params["location"]}')
-        print(f'  - Favorites file exists: True')
-        print(f'  - Location found in favorites: {found}')
-        print(f'  - Validation result: {found}')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('OsmAndFavorite Evaluation Details:')
+      self.add_validation_log(f'  - Expected location: {self.params["location"]}')
+      self.add_validation_log(f'  - Favorites file exists: True')
+      self.add_validation_log(f'  - Location found in favorites: {found}')
+      self.add_validation_log(f'  - Validation result: {found}')
       if found:
         return super().is_successful(env)
     return 0.0
@@ -326,19 +316,14 @@ class OsmAndMarker(_OsmTaskEval, sqlite_validators.SQLiteApp):
         found = True
         break
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('OsmAndMarker Evaluation Details:')
-      print(f'  - Expected location: {self.params["location"]}')
-      print(f'  - Markers in DB: {len(rows)}')
-      for i, r in enumerate(rows):
-        print(f'    [{i}] lat={r.marker_lat}, lon={r.marker_lon}')
-      print(f'  - Matching marker found: {found}')
-      print(f'  - Validation result: {found}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('OsmAndMarker Evaluation Details:')
+    self.add_validation_log(f'  - Expected location: {self.params["location"]}')
+    self.add_validation_log(f'  - Markers in DB: {len(rows)}')
+    for i, r in enumerate(rows):
+      self.add_validation_log(f'    [{i}] lat={r.marker_lat}, lon={r.marker_lon}')
+    self.add_validation_log(f'  - Matching marker found: {found}')
+    self.add_validation_log(f'  - Validation result: {found}')
 
     if found:
       return super().is_successful(env)
@@ -486,18 +471,13 @@ class OsmAndTrack(_OsmTaskEval):
           found = True
           break
 
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('OsmAndTrack Evaluation Details:')
-        print(f'  - Expected waypoints: {self.params["waypoints"]}')
-        print(f'  - Target coords: {self._target_waypoint_coords}')
-        print(f'  - Track files found: {track_files}')
-        print(f'  - Matching track found: {found}')
-        print(f'  - Validation result: {found}')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('OsmAndTrack Evaluation Details:')
+      self.add_validation_log(f'  - Expected waypoints: {self.params["waypoints"]}')
+      self.add_validation_log(f'  - Target coords: {self._target_waypoint_coords}')
+      self.add_validation_log(f'  - Track files found: {track_files}')
+      self.add_validation_log(f'  - Matching track found: {found}')
+      self.add_validation_log(f'  - Validation result: {found}')
 
       if found:
         return super().is_successful(env)

@@ -220,18 +220,13 @@ class ContactsNewContactDraft(task_eval.TaskEval):
         phone_label=self.params["phone_label"],
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('ContactsNewContactDraft Evaluation Details:')
-      print(f'  - Expected first name: {self.params["first"]}')
-      print(f'  - Expected last name: {self.params["last"]}')
-      print(f'  - Expected phone: {self.params["phone"]}')
-      print(f'  - Expected phone label: {self.params["phone_label"]}')
-      print(f'  - Contact info entered: {contact_entered}')
-      print(f'  - Validation result: {contact_entered}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('ContactsNewContactDraft Evaluation Details:')
+    self.add_validation_log(f'  - Expected first name: {self.params["first"]}')
+    self.add_validation_log(f'  - Expected last name: {self.params["last"]}')
+    self.add_validation_log(f'  - Expected phone: {self.params["phone"]}')
+    self.add_validation_log(f'  - Expected phone label: {self.params["phone_label"]}')
+    self.add_validation_log(f'  - Contact info entered: {contact_entered}')
+    self.add_validation_log(f'  - Validation result: {contact_entered}')
 
     return 1.0 if contact_entered else 0.0

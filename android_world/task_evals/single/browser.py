@@ -114,17 +114,12 @@ class BrowserTask(task_eval.TaskEval):
         success_found = True
         break
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('BrowserTask Evaluation Details:')
-      print(f'  - Current package: {package_name}')
-      print(f'  - In Chrome app: {in_chrome}')
-      print(f'  - Success text found: {success_found}')
-      print(f'  - Validation result: {in_chrome and success_found}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('BrowserTask Evaluation Details:')
+    self.add_validation_log(f'  - Current package: {package_name}')
+    self.add_validation_log(f'  - In Chrome app: {in_chrome}')
+    self.add_validation_log(f'  - Success text found: {success_found}')
+    self.add_validation_log(f'  - Validation result: {in_chrome and success_found}')
 
     if not in_chrome:
       return 0.0

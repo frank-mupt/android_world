@@ -310,24 +310,19 @@ class AddMultipleRows(SQLiteApp, abc.ABC):
         self.before, after, reference_rows
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('AddMultipleRows Evaluation Details:')
-      print(f'  - Rows before: {len(self.before)}')
-      print(f'  - Rows after: {len(after)}')
-      print(f'  - Expected rows to add: {len(reference_rows)}')
-      print(f'  - Expected total after: {len(self.before) + len(reference_rows)}')
-      print('  - Reference rows to add:')
-      for i, row in enumerate(reference_rows):
-        print(f'    [{i}] {row}')
-      print('  - Rows in DB after:')
-      for i, row in enumerate(after):
-        print(f'    [{i}] {row}')
-      print(f'  - Row addition validation result: {row_addition_successful}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('AddMultipleRows Evaluation Details:')
+    self.add_validation_log(f'  - Rows before: {len(self.before)}')
+    self.add_validation_log(f'  - Rows after: {len(after)}')
+    self.add_validation_log(f'  - Expected rows to add: {len(reference_rows)}')
+    self.add_validation_log(f'  - Expected total after: {len(self.before) + len(reference_rows)}')
+    self.add_validation_log('  - Reference rows to add:')
+    for i, row in enumerate(reference_rows):
+      self.add_validation_log(f'    [{i}] {row}')
+    self.add_validation_log('  - Rows in DB after:')
+    for i, row in enumerate(after):
+      self.add_validation_log(f'    [{i}] {row}')
+    self.add_validation_log(f'  - Row addition validation result: {row_addition_successful}')
 
     return 1.0 if row_addition_successful else 0.0
 
@@ -389,24 +384,19 @@ class DeleteMultipleRows(SQLiteApp, abc.ABC):
     # Validate the integrity of the deletion
     deletion_successful = self.validate_deletion_integrity(self.before, after)
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('DeleteMultipleRows Evaluation Details:')
-      print(f'  - Rows before: {len(self.before)}')
-      print(f'  - Rows after: {len(after)}')
-      print(f'  - Rows to delete: {len(self.rows_to_delete)}')
-      print(f'  - Expected total after: {len(self.before) - len(self.rows_to_delete)}')
-      print('  - Rows to delete:')
-      for i, row in enumerate(self.rows_to_delete):
-        print(f'    [{i}] {row}')
-      print('  - Rows in DB after:')
-      for i, row in enumerate(after):
-        print(f'    [{i}] {row}')
-      print(f'  - Deletion validation result: {deletion_successful}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('DeleteMultipleRows Evaluation Details:')
+    self.add_validation_log(f'  - Rows before: {len(self.before)}')
+    self.add_validation_log(f'  - Rows after: {len(after)}')
+    self.add_validation_log(f'  - Rows to delete: {len(self.rows_to_delete)}')
+    self.add_validation_log(f'  - Expected total after: {len(self.before) - len(self.rows_to_delete)}')
+    self.add_validation_log('  - Rows to delete:')
+    for i, row in enumerate(self.rows_to_delete):
+      self.add_validation_log(f'    [{i}] {row}')
+    self.add_validation_log('  - Rows in DB after:')
+    for i, row in enumerate(after):
+      self.add_validation_log(f'    [{i}] {row}')
+    self.add_validation_log(f'  - Deletion validation result: {deletion_successful}')
 
     return 1.0 if deletion_successful else 0.0
 

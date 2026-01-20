@@ -92,19 +92,14 @@ class MoveFile(task_eval.TaskEval):
     )
     succeeded = not src_exists and dest_exists
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MoveFile Evaluation Details:')
-      print(f'  - File name: {self.params["file_name"]}')
-      print(f'  - Source directory: {self.source_directory}')
-      print(f'  - Destination directory: {self.dest_directory}')
-      print(f'  - File exists in source: {src_exists} (expected: False)')
-      print(f'  - File exists in destination: {dest_exists} (expected: True)')
-      print(f'  - Validation result: {succeeded}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MoveFile Evaluation Details:')
+    self.add_validation_log(f'  - File name: {self.params["file_name"]}')
+    self.add_validation_log(f'  - Source directory: {self.source_directory}')
+    self.add_validation_log(f'  - Destination directory: {self.dest_directory}')
+    self.add_validation_log(f'  - File exists in source: {src_exists} (expected: False)')
+    self.add_validation_log(f'  - File exists in destination: {dest_exists} (expected: True)')
+    self.add_validation_log(f'  - Validation result: {succeeded}')
 
     return 1.0 if succeeded else 0.0
 
@@ -172,17 +167,12 @@ class DeleteFile(task_eval.TaskEval):
         self.params["file_name"], self.data_directory, env.controller
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('DeleteFile Evaluation Details:')
-      print(f'  - File name: {self.params["file_name"]}')
-      print(f'  - Directory: {self.data_directory}')
-      print(f'  - File still exists: {exists} (expected: False)')
-      print(f'  - Validation result: {not exists}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('DeleteFile Evaluation Details:')
+    self.add_validation_log(f'  - File name: {self.params["file_name"]}')
+    self.add_validation_log(f'  - Directory: {self.data_directory}')
+    self.add_validation_log(f'  - File still exists: {exists} (expected: False)')
+    self.add_validation_log(f'  - Validation result: {not exists}')
 
     return 0.0 if exists else 1.0
 
@@ -233,20 +223,12 @@ class CreateFile(task_eval.TaskEval):
     )
 
     if not exists:
-      # Output detailed evaluation information with protection
-      try:
-        print()
-        print('====================== Task Result Validation ======================')
-        print('CreateFile Evaluation Details:')
-        print(f'  - File name: {file_name}')
-        print(f'  - Directory: {self.data_directory}')
-        print(f'  - File exists: {exists}')
-        print(f'  - Validation result: False (file not found)')
-        print('====================== Task Result Validation ======================')
-        print()
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
-      logging.info("%s not found", file_name)
+      # Collect validation logs
+      self.add_validation_log('CreateFile Evaluation Details:')
+      self.add_validation_log(f'  - File name: {file_name}')
+      self.add_validation_log(f'  - Directory: {self.data_directory}')
+      self.add_validation_log(f'  - File exists: {exists}')
+      self.add_validation_log(f'  - Validation result: False (file not found)')
       return 0.0
 
     # Check the contents of the new file
@@ -261,20 +243,15 @@ class CreateFile(task_eval.TaskEval):
     file_contents = res.generic.output.decode().replace("\r", "").strip()
     match = fuzzy_match_lib.fuzzy_match(file_contents, self.params["text"])
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('CreateFile Evaluation Details:')
-      print(f'  - File name: {file_name}')
-      print(f'  - Directory: {self.data_directory}')
-      print(f'  - File exists: {exists}')
-      print(f'  - Expected content: {self.params["text"]}')
-      print(f'  - Actual content: {file_contents}')
-      print(f'  - Content match: {match}')
-      print(f'  - Validation result: {match}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('CreateFile Evaluation Details:')
+    self.add_validation_log(f'  - File name: {file_name}')
+    self.add_validation_log(f'  - Directory: {self.data_directory}')
+    self.add_validation_log(f'  - File exists: {exists}')
+    self.add_validation_log(f'  - Expected content: {self.params["text"]}')
+    self.add_validation_log(f'  - Actual content: {file_contents}')
+    self.add_validation_log(f'  - Content match: {match}')
+    self.add_validation_log(f'  - Validation result: {match}')
 
     if not match:
       logging.info("%s does not match %s", file_contents, self.params["text"])

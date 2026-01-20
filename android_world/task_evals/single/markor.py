@@ -152,17 +152,12 @@ class MarkorCreateFolder(Markor):
         folder_name, device_constants.MARKOR_DATA, env.controller
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorCreateFolder Evaluation Details:')
-      print(f'  - Expected folder name: {folder_name}')
-      print(f'  - Directory: {device_constants.MARKOR_DATA}')
-      print(f'  - Folder exists: {exists}')
-      print(f'  - Validation result: {exists}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorCreateFolder Evaluation Details:')
+    self.add_validation_log(f'  - Expected folder name: {folder_name}')
+    self.add_validation_log(f'  - Directory: {device_constants.MARKOR_DATA}')
+    self.add_validation_log(f'  - Folder exists: {exists}')
+    self.add_validation_log(f'  - Validation result: {exists}')
 
     if not exists:
       logging.info("%s not found", folder_name)
@@ -263,20 +258,15 @@ class MarkorEditNote(Markor):
         expected_content,
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorEditNote Evaluation Details:')
-      print(f'  - File name: {self.params["file_name"]}')
-      print(f'  - Edit type: {self.params["edit_type"]}')
-      print(f'  - Original content: {self.original_content}')
-      print(f'  - Expected content: {expected_content}')
-      print(f'  - Actual content: {file_contents}')
-      print(f'  - Content match: {is_match}')
-      print(f'  - Validation result: {is_match}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorEditNote Evaluation Details:')
+    self.add_validation_log(f'  - File name: {self.params["file_name"]}')
+    self.add_validation_log(f'  - Edit type: {self.params["edit_type"]}')
+    self.add_validation_log(f'  - Original content: {self.original_content}')
+    self.add_validation_log(f'  - Expected content: {expected_content}')
+    self.add_validation_log(f'  - Actual content: {file_contents}')
+    self.add_validation_log(f'  - Content match: {is_match}')
+    self.add_validation_log(f'  - Validation result: {is_match}')
 
     return 1.0 if is_match else 0.0
 
@@ -396,19 +386,14 @@ class MarkorDeleteNewestNote(Markor):
     )
     success = files_intact and one_fewer_file
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorDeleteNewestNote Evaluation Details:')
-      print(f'  - Initial files: {len(self.initial_file_list_sorted)}')
-      print(f'  - Current files: {len(new_file_list_sorted)}')
-      print(f'  - Expected newest file deleted: {self.initial_file_list_sorted[-1].file_name if self.initial_file_list_sorted else None}')
-      print(f'  - Other files intact: {files_intact}')
-      print(f'  - One fewer file: {one_fewer_file}')
-      print(f'  - Validation result: {success}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorDeleteNewestNote Evaluation Details:')
+    self.add_validation_log(f'  - Initial files: {len(self.initial_file_list_sorted)}')
+    self.add_validation_log(f'  - Current files: {len(new_file_list_sorted)}')
+    self.add_validation_log(f'  - Expected newest file deleted: {self.initial_file_list_sorted[-1].file_name if self.initial_file_list_sorted else None}')
+    self.add_validation_log(f'  - Other files intact: {files_intact}')
+    self.add_validation_log(f'  - One fewer file: {one_fewer_file}')
+    self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
 
@@ -452,20 +437,15 @@ class MarkorDeleteAllNotes(Markor):
     )
     all_deleted = len(file_list) == 0
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorDeleteAllNotes Evaluation Details:')
-      print(f'  - Directory: {device_constants.MARKOR_DATA}')
-      print(f'  - Remaining files: {len(file_list)}')
-      if file_list:
-        for f in file_list:
-          print(f'    - {f.file_name}')
-      print(f'  - All deleted: {all_deleted}')
-      print(f'  - Validation result: {all_deleted}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorDeleteAllNotes Evaluation Details:')
+    self.add_validation_log(f'  - Directory: {device_constants.MARKOR_DATA}')
+    self.add_validation_log(f'  - Remaining files: {len(file_list)}')
+    if file_list:
+      for f in file_list:
+        self.add_validation_log(f'    - {f.file_name}')
+    self.add_validation_log(f'  - All deleted: {all_deleted}')
+    self.add_validation_log(f'  - Validation result: {all_deleted}')
 
     return 1.0 if all_deleted else 0.0
 
@@ -666,15 +646,10 @@ class MarkorMergeNotes(Markor):
     super().is_successful(env)
     create_success = self.create_file_task.is_successful(env)
     if not create_success:
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('MarkorMergeNotes Evaluation Details:')
-        print(f'  - Create file task failed')
-        print(f'  - Validation result: False')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('MarkorMergeNotes Evaluation Details:')
+      self.add_validation_log(f'  - Create file task failed')
+      self.add_validation_log(f'  - Validation result: False')
       return 0.0
     # The CreateFile task is using a fuzzy match in its is_successful function,
     # but here we want to explicitly check if the agent adds a blank line
@@ -708,19 +683,14 @@ class MarkorMergeNotes(Markor):
         and (not content_split[3])
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorMergeNotes Evaluation Details:')
-      print(f'  - Files to merge: {self.params["file1_name"]}, {self.params["file2_name"]}, {self.params["file3_name"]}')
-      print(f'  - New file name: {self.params["new_file_name"]}')
-      print(f'  - Merged file content: {merged_file}')
-      print(f'  - Content split parts: {len(content_split)} (expected: 5)')
-      print(f'  - Notes properly merged: {are_notes_merged}')
-      print(f'  - Validation result: {are_notes_merged}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorMergeNotes Evaluation Details:')
+    self.add_validation_log(f'  - Files to merge: {self.params["file1_name"]}, {self.params["file2_name"]}, {self.params["file3_name"]}')
+    self.add_validation_log(f'  - New file name: {self.params["new_file_name"]}')
+    self.add_validation_log(f'  - Merged file content: {merged_file}')
+    self.add_validation_log(f'  - Content split parts: {len(content_split)} (expected: 5)')
+    self.add_validation_log(f'  - Notes properly merged: {are_notes_merged}')
+    self.add_validation_log(f'  - Validation result: {are_notes_merged}')
 
     return 1.0 if are_notes_merged else 0.0
 
@@ -807,20 +777,15 @@ class MarkorChangeNoteContent(Markor):
       )
     success = not original_exists and new_exists and content_updated
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorChangeNoteContent Evaluation Details:')
-      print(f'  - Original name: {self.params["original_name"]}')
-      print(f'  - New name: {self.params["new_name"]}')
-      print(f'  - Expected content: {self.params["updated_content"]}')
-      print(f'  - Original file deleted: {not original_exists}')
-      print(f'  - New file exists: {new_exists}')
-      print(f'  - Content updated: {content_updated}')
-      print(f'  - Validation result: {success}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorChangeNoteContent Evaluation Details:')
+    self.add_validation_log(f'  - Original name: {self.params["original_name"]}')
+    self.add_validation_log(f'  - New name: {self.params["new_name"]}')
+    self.add_validation_log(f'  - Expected content: {self.params["updated_content"]}')
+    self.add_validation_log(f'  - Original file deleted: {not original_exists}')
+    self.add_validation_log(f'  - New file exists: {new_exists}')
+    self.add_validation_log(f'  - Content updated: {content_updated}')
+    self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
 
@@ -910,22 +875,17 @@ class MarkorAddNoteHeader(Markor):
       )
     success = not original_exists and new_exists and correct
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorAddNoteHeader Evaluation Details:')
-      print(f'  - Original name: {self.params["original_name"]}')
-      print(f'  - New name: {self.params["new_name"]}')
-      print(f'  - Header: {self.params["header"]}')
-      print(f'  - Original content: {self.params["original_content"]}')
-      print(f'  - Expected content: {expected_content}')
-      print(f'  - Original file deleted: {not original_exists}')
-      print(f'  - New file exists: {new_exists}')
-      print(f'  - Content correct: {correct}')
-      print(f'  - Validation result: {success}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorAddNoteHeader Evaluation Details:')
+    self.add_validation_log(f'  - Original name: {self.params["original_name"]}')
+    self.add_validation_log(f'  - New name: {self.params["new_name"]}')
+    self.add_validation_log(f'  - Header: {self.params["header"]}')
+    self.add_validation_log(f'  - Original content: {self.params["original_content"]}')
+    self.add_validation_log(f'  - Expected content: {expected_content}')
+    self.add_validation_log(f'  - Original file deleted: {not original_exists}')
+    self.add_validation_log(f'  - New file exists: {new_exists}')
+    self.add_validation_log(f'  - Content correct: {correct}')
+    self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
 

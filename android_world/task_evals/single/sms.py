@@ -305,22 +305,17 @@ class SimpleSmsResend(sms_validators.SimpleSMSSendSms):
           after_messages[0], self.before_messages[-1]
       )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('SimpleSmsResend Evaluation Details:')
-      print(f'  - Messages before: {len(self.before_messages)}')
-      print(f'  - Messages after: {len(after_messages)}')
-      print(f'  - Expected messages after: {len(self.before_messages) + 1}')
-      print(f'  - Message count OK: {count_ok}')
-      if count_ok:
-        print(f'  - New message: {after_messages[0] if after_messages else None}')
-        print(f'  - Last before message: {self.before_messages[-1] if self.before_messages else None}')
-        print(f'  - Messages equal: {messages_equal}')
-      print(f'  - Validation result: {count_ok and messages_equal}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('SimpleSmsResend Evaluation Details:')
+    self.add_validation_log(f'  - Messages before: {len(self.before_messages)}')
+    self.add_validation_log(f'  - Messages after: {len(after_messages)}')
+    self.add_validation_log(f'  - Expected messages after: {len(self.before_messages) + 1}')
+    self.add_validation_log(f'  - Message count OK: {count_ok}')
+    if count_ok:
+      self.add_validation_log(f'  - New message: {after_messages[0] if after_messages else None}')
+      self.add_validation_log(f'  - Last before message: {self.before_messages[-1] if self.before_messages else None}')
+      self.add_validation_log(f'  - Messages equal: {messages_equal}')
+    self.add_validation_log(f'  - Validation result: {count_ok and messages_equal}')
 
     return 1.0 if (count_ok and messages_equal) else 0.0
 

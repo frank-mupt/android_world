@@ -56,17 +56,12 @@ class SimpleDrawProCreateDrawing(task_eval.TaskEval):
         file_name, self.create_file_task.data_directory, env.controller
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('SimpleDrawProCreateDrawing Evaluation Details:')
-      print(f'  - Expected file name: {file_name}')
-      print(f'  - Directory: {self.create_file_task.data_directory}')
-      print(f'  - File exists: {exists}')
-      print(f'  - Validation result: {exists}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('SimpleDrawProCreateDrawing Evaluation Details:')
+    self.add_validation_log(f'  - Expected file name: {file_name}')
+    self.add_validation_log(f'  - Directory: {self.create_file_task.data_directory}')
+    self.add_validation_log(f'  - File exists: {exists}')
+    self.add_validation_log(f'  - Validation result: {exists}')
 
     return 1.0 if exists else 0.0
 

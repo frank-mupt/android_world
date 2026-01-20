@@ -48,17 +48,12 @@ class TurnOnWifiAndOpenApp(task_eval.TaskEval):
     open_app_score = self.open_app_task.is_successful(env)
     combined = (wifi_score + open_app_score) / 2.0
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('TurnOnWifiAndOpenApp Evaluation Details:')
-      print(f'  - WiFi turn on score: {wifi_score}')
-      print(f'  - Open app score: {open_app_score}')
-      print(f'  - Combined score: {combined}')
-      print(f'  - Validation result: {combined > 0.5}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('TurnOnWifiAndOpenApp Evaluation Details:')
+    self.add_validation_log(f'  - WiFi turn on score: {wifi_score}')
+    self.add_validation_log(f'  - Open app score: {open_app_score}')
+    self.add_validation_log(f'  - Combined score: {combined}')
+    self.add_validation_log(f'  - Validation result: {combined > 0.5}')
 
     return combined
 
@@ -100,17 +95,12 @@ class TurnOffWifiAndTurnOnBluetooth(task_eval.TaskEval):
     bluetooth_score = self.turn_on_bluetooth_task.is_successful(env)
     combined = (wifi_score + bluetooth_score) / 2.0
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('TurnOffWifiAndTurnOnBluetooth Evaluation Details:')
-      print(f'  - WiFi turn off score: {wifi_score}')
-      print(f'  - Bluetooth turn on score: {bluetooth_score}')
-      print(f'  - Combined score: {combined}')
-      print(f'  - Validation result: {combined > 0.5}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('TurnOffWifiAndTurnOnBluetooth Evaluation Details:')
+    self.add_validation_log(f'  - WiFi turn off score: {wifi_score}')
+    self.add_validation_log(f'  - Bluetooth turn on score: {bluetooth_score}')
+    self.add_validation_log(f'  - Combined score: {combined}')
+    self.add_validation_log(f'  - Validation result: {combined > 0.5}')
 
     return combined
 

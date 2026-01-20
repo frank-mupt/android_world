@@ -109,43 +109,29 @@ class InformationRetrieval(task_eval.TaskEval, abc.ABC):
   def is_successful(self, env: interface.AsyncEnv) -> float:
     super().is_successful(env)
     if not env.interaction_cache:
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('InformationRetrieval Evaluation Details:')
-        print(f'  - Task: {self.task}')
-        print(f'  - Interaction cache: None')
-        print(f'  - Validation result: False')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('InformationRetrieval Evaluation Details:')
+      self.add_validation_log(f'  - Task: {self.task}')
+      self.add_validation_log(f'  - Interaction cache: None')
+      self.add_validation_log(f'  - Validation result: False')
       return 0.0
     try:
       answers_are_equal = proto_utils.check_agent_answer(
           env.interaction_cache, self.task
       )
-      # Output detailed evaluation information with protection
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('InformationRetrieval Evaluation Details:')
-        print(f'  - Task: {self.task}')
-        print(f'  - Agent answer in cache: {env.interaction_cache}')
-        print(f'  - Answers equal: {answers_are_equal}')
-        print(f'  - Validation result: {answers_are_equal}')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as e:
-        print(f'[Warning] Failed to print evaluation details: {e}')
+      # Collect validation logs
+      self.add_validation_log('InformationRetrieval Evaluation Details:')
+      self.add_validation_log(f'  - Task: {self.task}')
+      self.add_validation_log(f'  - Agent answer in cache: {env.interaction_cache}')
+      self.add_validation_log(f'  - Answers equal: {answers_are_equal}')
+      self.add_validation_log(f'  - Validation result: {answers_are_equal}')
       return 1.0 if answers_are_equal else 0.0
     except ValueError as e:
-      try:
-        print('\n====================== Task Result Validation ======================')
-        print('InformationRetrieval Evaluation Details:')
-        print(f'  - Task: {self.task}')
-        print(f'  - Error: {e}')
-        print(f'  - Validation result: False')
-        print('====================== Task Result Validation ======================\n')
-      except Exception as ex:
-        print(f'[Warning] Failed to print evaluation details: {ex}')
+      # Collect validation logs
+      self.add_validation_log('InformationRetrieval Evaluation Details:')
+      self.add_validation_log(f'  - Task: {self.task}')
+      self.add_validation_log(f'  - Error: {e}')
+      self.add_validation_log(f'  - Validation result: False')
       return 0.0
 
   def tear_down(self, env: interface.AsyncEnv) -> None:

@@ -67,17 +67,12 @@ class MarkorCreateNoteAndSms(markor.Markor):
 
     combined = (markor_success + sms_success) / 2.0
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('MarkorCreateNoteAndSms Evaluation Details:')
-      print(f'  - Markor task score: {markor_success}')
-      print(f'  - SMS task score: {sms_success}')
-      print(f'  - Combined score: {combined}')
-      print(f'  - Validation result: {combined > 0.5}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('MarkorCreateNoteAndSms Evaluation Details:')
+    self.add_validation_log(f'  - Markor task score: {markor_success}')
+    self.add_validation_log(f'  - SMS task score: {sms_success}')
+    self.add_validation_log(f'  - Combined score: {combined}')
+    self.add_validation_log(f'  - Validation result: {combined > 0.5}')
 
     return combined
 

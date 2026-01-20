@@ -168,18 +168,13 @@ class RetroCreatePlaylist(task_eval.TaskEval):
         expected_files,
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('RetroCreatePlaylist Evaluation Details:')
-      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
-      print(f'  - Expected files: {expected_files}')
-      print(f'  - Actual playlist data: {actual}')
-      print(f'  - Playlist verified: {verified}')
-      print(f'  - Validation result: {verified}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('RetroCreatePlaylist Evaluation Details:')
+    self.add_validation_log(f'  - Expected playlist name: {self.params["playlist_name"]}')
+    self.add_validation_log(f'  - Expected files: {expected_files}')
+    self.add_validation_log(f'  - Actual playlist data: {actual}')
+    self.add_validation_log(f'  - Playlist verified: {verified}')
+    self.add_validation_log(f'  - Validation result: {verified}')
 
     return int(verified)
 
@@ -219,17 +214,12 @@ class RetroPlayingQueue(RetroCreatePlaylist):
     expected = [f.split('.')[0] for f in self.params['files']]
     match = queue == expected
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('RetroPlayingQueue Evaluation Details:')
-      print(f'  - Expected queue: {expected}')
-      print(f'  - Actual queue: {queue}')
-      print(f'  - Queue match: {match}')
-      print(f'  - Validation result: {match}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('RetroPlayingQueue Evaluation Details:')
+    self.add_validation_log(f'  - Expected queue: {expected}')
+    self.add_validation_log(f'  - Actual queue: {queue}')
+    self.add_validation_log(f'  - Queue match: {match}')
+    self.add_validation_log(f'  - Validation result: {match}')
 
     return int(match)
 
@@ -261,18 +251,13 @@ class RetroSavePlaylist(RetroCreatePlaylist):
     playlist_score = super().is_successful(env)
     combined = (playlist_score + int(playlist_exists)) / 2.0
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('RetroSavePlaylist Evaluation Details:')
-      print(f'  - Expected export file: {playlist_file}')
-      print(f'  - Export file exists: {playlist_exists}')
-      print(f'  - Playlist creation score: {playlist_score}')
-      print(f'  - Combined score: {combined}')
-      print(f'  - Validation result: {combined > 0.5}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('RetroSavePlaylist Evaluation Details:')
+    self.add_validation_log(f'  - Expected export file: {playlist_file}')
+    self.add_validation_log(f'  - Export file exists: {playlist_exists}')
+    self.add_validation_log(f'  - Playlist creation score: {playlist_score}')
+    self.add_validation_log(f'  - Combined score: {combined}')
+    self.add_validation_log(f'  - Validation result: {combined > 0.5}')
 
     return combined
 
@@ -333,16 +318,11 @@ class RetroPlaylistDuration(RetroCreatePlaylist):
     matching_songs = []
     for song in songs:
       if song.playlist_name != self.params['playlist_name']:
-        # Output detailed evaluation information with protection
-        try:
-          print('\n====================== Task Result Validation ======================')
-          print('RetroPlaylistDuration Evaluation Details:')
-          print(f'  - Expected playlist name: {self.params["playlist_name"]}')
-          print(f'  - Found mismatched playlist: {song.playlist_name}')
-          print(f'  - Validation result: False')
-          print('====================== Task Result Validation ======================\n')
-        except Exception as e:
-          print(f'[Warning] Failed to print evaluation details: {e}')
+        # Collect validation logs
+        self.add_validation_log('RetroPlaylistDuration Evaluation Details:')
+        self.add_validation_log(f'  - Expected playlist name: {self.params["playlist_name"]}')
+        self.add_validation_log(f'  - Found mismatched playlist: {song.playlist_name}')
+        self.add_validation_log(f'  - Validation result: False')
         return False
       total_ms += song.duration_ms
       matching_songs.append(song)
@@ -350,19 +330,14 @@ class RetroPlaylistDuration(RetroCreatePlaylist):
     duration_ok = 45 * 60 * 1000 <= total_ms <= 50 * 60 * 1000
     total_minutes = total_ms / 60000
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('RetroPlaylistDuration Evaluation Details:')
-      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
-      print(f'  - Songs in playlist: {len(matching_songs)}')
-      print(f'  - Total duration: {total_minutes:.2f} minutes ({total_ms} ms)')
-      print(f'  - Expected range: 45-50 minutes')
-      print(f'  - Duration in range: {duration_ok}')
-      print(f'  - Validation result: {duration_ok}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('RetroPlaylistDuration Evaluation Details:')
+    self.add_validation_log(f'  - Expected playlist name: {self.params["playlist_name"]}')
+    self.add_validation_log(f'  - Songs in playlist: {len(matching_songs)}')
+    self.add_validation_log(f'  - Total duration: {total_minutes:.2f} minutes ({total_ms} ms)')
+    self.add_validation_log(f'  - Expected range: 45-50 minutes')
+    self.add_validation_log(f'  - Duration in range: {duration_ok}')
+    self.add_validation_log(f'  - Validation result: {duration_ok}')
 
     return float(duration_ok)
 

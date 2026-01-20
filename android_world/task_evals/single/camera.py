@@ -84,18 +84,13 @@ class CameraTakeVideo(_Camera):
     )
     success = len(new_videos) == 1
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('CameraTakeVideo Evaluation Details:')
-      print(f'  - Videos before: {len(self.before_videos)}')
-      print(f'  - Videos after: {len(after_videos)}')
-      print(f'  - New videos: {new_videos}')
-      print(f'  - Expected new videos: 1')
-      print(f'  - Validation result: {success}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('CameraTakeVideo Evaluation Details:')
+    self.add_validation_log(f'  - Videos before: {len(self.before_videos)}')
+    self.add_validation_log(f'  - Videos after: {len(after_videos)}')
+    self.add_validation_log(f'  - New videos: {new_videos}')
+    self.add_validation_log(f'  - Expected new videos: 1')
+    self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
 
@@ -143,18 +138,13 @@ class CameraTakePhoto(_Camera):
     )
     success = len(new_photos) == 1
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('CameraTakePhoto Evaluation Details:')
-      print(f'  - Photos before: {len(self.before_photos)}')
-      print(f'  - Photos after: {len(after_photos)}')
-      print(f'  - New photos: {new_photos}')
-      print(f'  - Expected new photos: 1')
-      print(f'  - Validation result: {success}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('CameraTakePhoto Evaluation Details:')
+    self.add_validation_log(f'  - Photos before: {len(self.before_photos)}')
+    self.add_validation_log(f'  - Photos after: {len(after_photos)}')
+    self.add_validation_log(f'  - New photos: {new_photos}')
+    self.add_validation_log(f'  - Expected new photos: 1')
+    self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
 

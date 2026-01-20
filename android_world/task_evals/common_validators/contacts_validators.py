@@ -52,25 +52,20 @@ class AddContact(task_eval.TaskEval):
     contacts = contacts_utils.list_contacts(env.controller)
     contact_found = self._has_contact(contacts)
 
-    # Output detailed evaluation information with protection
-    try:
-      expected_contact = contacts_utils.Contact(
-          self.params['name'],
-          contacts_utils.clean_phone_number(self.params['number']),
-      )
-      print('\n====================== Task Result Validation ======================')
-      print('AddContact Evaluation Details:')
-      print(f'  - Expected name: {self.params["name"]}')
-      print(f'  - Expected number: {self.params["number"]}')
-      print(f'  - Expected contact (cleaned): {expected_contact}')
-      print(f'  - Contacts in device: {len(contacts)}')
-      for i, c in enumerate(contacts):
-        print(f'    [{i}] {c}')
-      print(f'  - Contact found: {contact_found}')
-      print(f'  - Validation result: {contact_found}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    expected_contact = contacts_utils.Contact(
+        self.params['name'],
+        contacts_utils.clean_phone_number(self.params['number']),
+    )
+    self.add_validation_log('AddContact Evaluation Details:')
+    self.add_validation_log(f'  - Expected name: {self.params["name"]}')
+    self.add_validation_log(f'  - Expected number: {self.params["number"]}')
+    self.add_validation_log(f'  - Expected contact (cleaned): {expected_contact}')
+    self.add_validation_log(f'  - Contacts in device: {len(contacts)}')
+    for i, c in enumerate(contacts):
+      self.add_validation_log(f'    [{i}] {c}')
+    self.add_validation_log(f'  - Contact found: {contact_found}')
+    self.add_validation_log(f'  - Validation result: {contact_found}')
 
     return super().is_successful(env) if contact_found else 0.0
 

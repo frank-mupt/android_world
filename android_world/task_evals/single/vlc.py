@@ -147,18 +147,13 @@ class VlcCreatePlaylist(_VLC):
         actual, self.params['playlist_name'], self.params['files']
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('VlcCreatePlaylist Evaluation Details:')
-      print(f'  - Expected playlist name: {self.params["playlist_name"]}')
-      print(f'  - Expected files: {self.params["files"]}')
-      print(f'  - Actual playlist info: {actual}')
-      print(f'  - Playlist verified: {verified}')
-      print(f'  - Validation result: {verified}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('VlcCreatePlaylist Evaluation Details:')
+    self.add_validation_log(f'  - Expected playlist name: {self.params["playlist_name"]}')
+    self.add_validation_log(f'  - Expected files: {self.params["files"]}')
+    self.add_validation_log(f'  - Actual playlist info: {actual}')
+    self.add_validation_log(f'  - Playlist verified: {verified}')
+    self.add_validation_log(f'  - Validation result: {verified}')
 
     return float(verified)
 
@@ -240,17 +235,12 @@ class VlcCreateTwoPlaylists(task_eval.TaskEval):
     task2_result = self.task2.is_successful(env)
     combined = (task1_result + task2_result) / 2
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('VlcCreateTwoPlaylists Evaluation Details:')
-      print(f'  - Playlist 1 ({self.params["playlist_name1"]}): {task1_result}')
-      print(f'  - Playlist 2 ({self.params["playlist_name2"]}): {task2_result}')
-      print(f'  - Combined score: {combined}')
-      print(f'  - Validation result: {combined > 0.5}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('VlcCreateTwoPlaylists Evaluation Details:')
+    self.add_validation_log(f'  - Playlist 1 ({self.params["playlist_name1"]}): {task1_result}')
+    self.add_validation_log(f'  - Playlist 2 ({self.params["playlist_name2"]}): {task2_result}')
+    self.add_validation_log(f'  - Combined score: {combined}')
+    self.add_validation_log(f'  - Validation result: {combined > 0.5}')
 
     return combined
 

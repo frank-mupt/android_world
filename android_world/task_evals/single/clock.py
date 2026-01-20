@@ -155,22 +155,17 @@ class ClockTimerEntry(_ClockEval):
         seconds=self._params["seconds"],
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('ClockTimerEntry Evaluation Details:')
-      print(f'  - Expected timer: {self._params["hours"]:02d}h {self._params["minutes"]:02d}m {self._params["seconds"]:02d}s')
-      print(f'  - Current activity: {current_activity}')
-      print(f'  - UI elements with timer info:')
-      for elem in ui_elements:
-        if elem.text or elem.content_description:
-          if 'h ' in str(elem.text) or 'hours' in str(elem.content_description):
-            print(f'    - text: {elem.text}, desc: {elem.content_description}')
-      print(f'  - Timer is set: {timer_set}')
-      print(f'  - Validation result: {timer_set}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('ClockTimerEntry Evaluation Details:')
+    self.add_validation_log(f'  - Expected timer: {self._params["hours"]:02d}h {self._params["minutes"]:02d}m {self._params["seconds"]:02d}s')
+    self.add_validation_log(f'  - Current activity: {current_activity}')
+    self.add_validation_log(f'  - UI elements with timer info:')
+    for elem in ui_elements:
+      if elem.text or elem.content_description:
+        if 'h ' in str(elem.text) or 'hours' in str(elem.content_description):
+          self.add_validation_log(f'    - text: {elem.text}, desc: {elem.content_description}')
+    self.add_validation_log(f'  - Timer is set: {timer_set}')
+    self.add_validation_log(f'  - Validation result: {timer_set}')
 
     return 1.0 if timer_set else 0.0
 
@@ -218,20 +213,15 @@ class ClockStopWatchPausedVerify(_ClockEval):
         current_activity=current_activity,
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('ClockStopWatchPausedVerify Evaluation Details:')
-      print(f'  - Current activity: {current_activity}')
-      print(f'  - UI elements:')
-      for elem in ui_elements:
-        if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
-          print(f'    - text: {elem.text}, desc: {elem.content_description}')
-      print(f'  - Stopwatch paused: {paused}')
-      print(f'  - Validation result: {paused}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('ClockStopWatchPausedVerify Evaluation Details:')
+    self.add_validation_log(f'  - Current activity: {current_activity}')
+    self.add_validation_log(f'  - UI elements:')
+    for elem in ui_elements:
+      if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
+        self.add_validation_log(f'    - text: {elem.text}, desc: {elem.content_description}')
+    self.add_validation_log(f'  - Stopwatch paused: {paused}')
+    self.add_validation_log(f'  - Validation result: {paused}')
 
     return 1.0 if paused else 0.0
 
@@ -268,20 +258,15 @@ class ClockStopWatchRunning(_ClockEval):
         current_activity=current_activity,
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('ClockStopWatchRunning Evaluation Details:')
-      print(f'  - Current activity: {current_activity}')
-      print(f'  - UI elements:')
-      for elem in ui_elements:
-        if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
-          print(f'    - text: {elem.text}, desc: {elem.content_description}')
-      print(f'  - Stopwatch running: {running}')
-      print(f'  - Validation result: {running}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('ClockStopWatchRunning Evaluation Details:')
+    self.add_validation_log(f'  - Current activity: {current_activity}')
+    self.add_validation_log(f'  - UI elements:')
+    for elem in ui_elements:
+      if elem.content_description in ['Start', 'Pause', 'Lap', 'Stopwatch'] or elem.text == 'Stopwatch':
+        self.add_validation_log(f'    - text: {elem.text}, desc: {elem.content_description}')
+    self.add_validation_log(f'  - Stopwatch running: {running}')
+    self.add_validation_log(f'  - Validation result: {running}')
 
     return 1.0 if running else 0.0
 

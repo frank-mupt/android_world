@@ -43,11 +43,37 @@ class TaskEval(abc.ABC):
 
   def __init__(self, params: dict[str, Any]):
     self.initialized = False
+    self._validation_logs: list[str] = []
 
     # Disabling this check for now as it is causing issues on occasion with a
     # with a RefResolutionError due to inability to resolve json-schema.org.
     # jsonschema.validate(params, self.schema)
     self._params = params
+
+  def add_validation_log(self, message: str) -> None:
+    """Add a validation log message to be printed at task end."""
+    self._validation_logs.append(message)
+
+  def clear_validation_logs(self) -> None:
+    """Clear all collected validation logs."""
+    self._validation_logs = []
+
+  def print_validation_logs(self) -> None:
+    """Print all collected validation logs."""
+    if not self._validation_logs:
+      return
+    try:
+      print('\n====================== Task Result Validation ======================')
+      print(f'Task ID: {self.id}')
+      print(f'Task Name: {self.name}')
+      print('--------------------------------------------------------------------')
+      for log in self._validation_logs:
+        print(log)
+      print('====================== Task Result Validation ======================\n')
+    except Exception as e:
+      print(f'[Warning] Failed to print validation logs: {e}')
+    finally:
+      self.clear_validation_logs()
 
   @property
   @abc.abstractmethod

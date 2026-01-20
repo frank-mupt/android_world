@@ -66,17 +66,12 @@ class SaveCopyOfReceiptTaskEval(task_eval.TaskEval):
         env=env.controller,
     )
 
-    # Output detailed evaluation information with protection
-    try:
-      print('\n====================== Task Result Validation ======================')
-      print('SaveCopyOfReceiptTaskEval Evaluation Details:')
-      print(f'  - Expected file name: {file_name}')
-      print(f'  - Directory: {device_constants.DOWNLOAD_DATA}')
-      print(f'  - File exists: {exists}')
-      print(f'  - Validation result: {exists}')
-      print('====================== Task Result Validation ======================\n')
-    except Exception as e:
-      print(f'[Warning] Failed to print evaluation details: {e}')
+    # Collect validation logs
+    self.add_validation_log('SaveCopyOfReceiptTaskEval Evaluation Details:')
+    self.add_validation_log(f'  - Expected file name: {file_name}')
+    self.add_validation_log(f'  - Directory: {device_constants.DOWNLOAD_DATA}')
+    self.add_validation_log(f'  - File exists: {exists}')
+    self.add_validation_log(f'  - Validation result: {exists}')
 
     return 1.0 if exists else 0.0
 
