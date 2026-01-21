@@ -133,18 +133,30 @@ def setup_app(app: Type[apps.AppSetup], env: interface.AsyncEnv) -> None:
 
 def install_app_if_not_installed(app_name: str, env: interface.AsyncEnv):
   """Installs the apk of an app only if the apk is not installed."""
-  path = apps.download_app_data(apk)
-  adb_utils.install_apk(path, raw_env)
+  app_class = get_app_mapping(app_name)
+  if app_class is None:
+    logging.warning("App %s not found in app mapping.", app_name)
+    return
+  maybe_install_app(app_class, env)
 
 
 def maybe_install_app(
     app: Type[apps.AppSetup], env: interface.AsyncEnv
 ) -> None:
-  """Installs all APKs for Android World."""
+  """Installs APK for an app if not already installed."""
   if not app.apk_names:  # Ignore 1p apps that don't have an APK.
     return
-  logging.info("Installing app: %s.", app.app_name)
 
+  # Check if app is already installed
+  try:
+    package_name = app.package_name()
+    if is_package_installed(package_name, env):
+      logging.info("App %s (package: %s) is already installed, skipping.", app.app_name, package_name)
+      return
+  except Exception as e:
+    logging.warning("Could not check if %s is installed: %s. Will try to install.", app.app_name, e)
+
+  logging.info("Installing app: %s.", app.app_name)
   apk_installed = False
   for apk_name in app.apk_names:
     try:
