@@ -17,6 +17,7 @@
 import contextlib
 import enum
 import os
+import subprocess
 import time
 from typing import Any
 from typing import cast
@@ -304,12 +305,118 @@ max_episode_sec: 7200  # Prevent infinite episodes.
   return _TASK_PATH
 
 
+def _is_remote_mode() -> bool:
+  """Check if running in remote/Docker mode."""
+  return os.getenv("ANDROID_CONNECTION_TYPE") == "Remote"
+
+
+def _get_remote_device_name() -> str:
+  """Get device name for remote mode (host:port format)."""
+  host = os.getenv("ANDROID_REMOTE_HOST", "localhost")
+  port = os.getenv("ANDROID_ADB_PORT", "5555")
+  return f"{host}:{port}"
+
+
+def _adb_connect_remote(adb_path: str, device_name: str) -> bool:
+  """Connect to remote ADB device.
+
+  Args:
+    adb_path: Path to adb binary.
+    device_name: Device name in host:port format.
+
+  Returns:
+    True if connection successful, False otherwise.
+  """
+  try:
+    # Expand adb path
+    adb_path = os.path.expanduser(adb_path)
+
+    # Execute adb connect
+    cmd = [adb_path, "connect", device_name]
+    logging.info("Executing: %s", " ".join(cmd))
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+
+    output = result.stdout + result.stderr
+    logging.info("adb connect output: %s", output)
+
+    # Check if connection was successful
+    if "connected" in output.lower() or "already connected" in output.lower():
+      logging.info("Successfully connected to remote device: %s", device_name)
+      return True
+    else:
+      logging.warning("Failed to connect to remote device: %s, output: %s",
+                      device_name, output)
+      return False
+  except Exception as e:
+    logging.error("Error connecting to remote device: %s", e)
+    return False
+
+
+def _load_android_env(config: config_classes.AndroidEnvConfig):
+  """Custom loader that supports remote mode.
+
+  This replaces loader.load() to support remote ADB connections.
+  """
+  from android_env import environment
+  from android_env.components import coordinator as coordinator_lib
+  from android_env.components import device_settings as device_settings_lib
+  from android_env.components import task_manager as task_manager_lib
+  from android_env.proto import task_pb2
+  from android_world.env.android_world_emulator_simulator import AndroidWorldEmulatorSimulator
+  from google.protobuf import text_format
+
+  # Load task
+  task = task_pb2.Task()
+  if isinstance(config.task, config_classes.FilesystemTaskConfig):
+    with open(config.task.path, 'r') as proto_file:
+      text_format.Parse(proto_file.read(), task)
+
+  task_manager = task_manager_lib.TaskManager(task)
+
+  # Process emulator config (expand paths)
+  if isinstance(config.simulator, config_classes.EmulatorConfig):
+    launcher_config = config.simulator.emulator_launcher
+    launcher_config.android_avd_home = os.path.expanduser(
+        launcher_config.android_avd_home)
+    launcher_config.android_sdk_root = os.path.expanduser(
+        launcher_config.android_sdk_root)
+    launcher_config.emulator_path = os.path.expanduser(
+        launcher_config.emulator_path)
+    config.simulator.adb_controller.adb_path = os.path.expanduser(
+        config.simulator.adb_controller.adb_path)
+
+    simulator = AndroidWorldEmulatorSimulator(config=config.simulator)
+  else:
+    raise ValueError(f'Unsupported simulator config: {config.simulator}')
+
+  device_settings = device_settings_lib.DeviceSettings(simulator)
+  coordinator = coordinator_lib.Coordinator(
+      simulator, task_manager, device_settings)
+
+  return environment.AndroidEnv(
+      simulator=simulator, coordinator=coordinator, task_manager=task_manager)
+
+
 def get_controller(
     console_port: int = 5554,
     adb_path: str = DEFAULT_ADB_PATH,
     grpc_port: int = int(os.getenv("ANDROID_GRPC_PORT", "8554")),
 ) -> AndroidWorldController:
   """Creates a controller by connecting to an existing Android environment."""
+
+  # Check if running in remote mode
+  is_remote = _is_remote_mode()
+  remote_device_name = _get_remote_device_name() if is_remote else None
+
+  if is_remote:
+    logging.info("Running in remote mode, device: %s", remote_device_name)
+    # Connect to remote device first
+    _adb_connect_remote(adb_path, remote_device_name)
 
   config = config_classes.AndroidEnvConfig(
       task=config_classes.FilesystemTaskConfig(
@@ -324,7 +431,13 @@ def get_controller(
           adb_controller=config_classes.AdbControllerConfig(adb_path=adb_path),
       ),
   )
-  android_env_instance = loader.load(config)
+
+  # Use custom loader for remote mode, standard loader otherwise
+  if is_remote:
+    android_env_instance = _load_android_env(config)
+  else:
+    android_env_instance = loader.load(config)
+
   logging.info('Setting up AndroidWorldController.')
   return AndroidWorldController(
       android_env_instance
