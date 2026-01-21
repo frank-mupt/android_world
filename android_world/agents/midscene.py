@@ -38,11 +38,21 @@ class MidsceneAgent(base_agent.EnvironmentInteractingAgent):
 
     device = { "type": "Android" }
 
-    if os.environ.get("MIDSCENE_DEVICE_TYPE") == "Local":
-      device["deviceId"] = os.environ.get("MIDSCENE_DEVICE_ID", "")
+    # Get common ports
+    console_port = os.environ.get("ANDROID_CONSOLE_PORT", "5554")
+    adb_port = os.environ.get("ANDROID_ADB_PORT", "5555")
+
+    if os.environ.get("ANDROID_CONNECTION_TYPE") == "Local":
+      # Local mode: use explicit device ID if provided, otherwise derive from console port
+      device_id = os.environ.get("ANDROID_ADB_DEVICE_ID")
+      if device_id:
+        device["deviceId"] = device_id
+      else:
+        device["deviceId"] = f"emulator-{console_port}"
     else:
-      device["host"] = os.environ.get("MIDSCENE_DEVICE_HOST", "")
-      device["port"] = os.environ.get("MIDSCENE_DEVICE_PORT", "")
+      # Remote mode: use host and adb port
+      device["host"] = os.environ.get("ANDROID_REMOTE_HOST", "localhost")
+      device["port"] = adb_port
 
     self._send_rpc_request("new-agent", {"type": "Android", "device": device, "id": self.current_task_name})
 
