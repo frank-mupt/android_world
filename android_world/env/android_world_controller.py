@@ -138,12 +138,36 @@ class A11yMethod(enum.Enum):
   NONE = 'none'
 
 
+def _is_a11y_forwarder_installed(env: env_interface.AndroidEnvInterface) -> bool:
+  """Check if accessibility forwarder app is already installed."""
+  from android_env.proto import adb_pb2
+
+  check_request = adb_pb2.AdbRequest(
+      generic=adb_pb2.AdbRequest.GenericRequest(
+          args=['shell', 'pm', 'list', 'packages',
+                'com.google.androidenv.accessibilityforwarder']
+      )
+  )
+  response = env.execute_adb_call(check_request)
+  if response.status == adb_pb2.AdbResponse.Status.OK:
+    output = response.generic.output.decode('utf-8', errors='ignore')
+    if 'com.google.androidenv.accessibilityforwarder' in output:
+      logging.info('Accessibility forwarder app is already installed.')
+      return True
+  return False
+
+
 def apply_a11y_forwarder_app_wrapper(
     env: env_interface.AndroidEnvInterface, install_a11y_forwarding_app: bool
 ) -> env_interface.AndroidEnvInterface:
+  # Check if already installed to avoid redundant download
+  should_install = install_a11y_forwarding_app and not _is_a11y_forwarder_installed(env)
+  if install_a11y_forwarding_app and not should_install:
+    logging.info('Skipping accessibility forwarder installation (already installed).')
+
   return a11y_grpc_wrapper.A11yGrpcWrapper(
       env,
-      install_a11y_forwarding=install_a11y_forwarding_app,
+      install_a11y_forwarding=should_install,
       start_a11y_service=True,
       enable_a11y_tree_info=True,
       latest_a11y_info_only=True,
