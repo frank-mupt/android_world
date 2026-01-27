@@ -260,12 +260,9 @@ class MarkorEditNote(Markor):
 
     # Collect validation logs
     self.add_validation_log('MarkorEditNote Evaluation Details:')
-    self.add_validation_log(f'  - File name: {self.params["file_name"]}')
-    self.add_validation_log(f'  - Edit type: {self.params["edit_type"]}')
-    self.add_validation_log(f'  - Original content: {self.original_content}')
-    self.add_validation_log(f'  - Expected content: {expected_content}')
-    self.add_validation_log(f'  - Actual content: {file_contents}')
     self.add_validation_log(f'  - Content match: {is_match}')
+    self.add_validation_log(f'  - Expected: {repr(expected_content)}')
+    self.add_validation_log(f'  - Actual:   {repr(file_contents)}')
     self.add_validation_log(f'  - Validation result: {is_match}')
 
     return 1.0 if is_match else 0.0
@@ -683,13 +680,17 @@ class MarkorMergeNotes(Markor):
         and (not content_split[3])
     )
 
+    expected_content = (
+        self.params["file1_content"] + "\n\n" +
+        self.params["file2_content"] + "\n\n" +
+        self.params["file3_content"]
+    )
+
     # Collect validation logs
     self.add_validation_log('MarkorMergeNotes Evaluation Details:')
-    self.add_validation_log(f'  - Files to merge: {self.params["file1_name"]}, {self.params["file2_name"]}, {self.params["file3_name"]}')
-    self.add_validation_log(f'  - New file name: {self.params["new_file_name"]}')
-    self.add_validation_log(f'  - Merged file content: {merged_file}')
-    self.add_validation_log(f'  - Content split parts: {len(content_split)} (expected: 5)')
     self.add_validation_log(f'  - Notes properly merged: {are_notes_merged}')
+    self.add_validation_log(f'  - Expected: {repr(expected_content)}')
+    self.add_validation_log(f'  - Actual:   {repr(merged_file)}')
     self.add_validation_log(f'  - Validation result: {are_notes_merged}')
 
     return 1.0 if are_notes_merged else 0.0
@@ -767,24 +768,32 @@ class MarkorChangeNoteContent(Markor):
         env.controller,
     )
     content_updated = False
+    actual_content = None
     if new_exists:
-      content_updated = file_utils.check_file_content(
-          file_utils.convert_to_posix_path(
-              device_constants.MARKOR_DATA, self.params["new_name"]
-          ),
-          self.params["updated_content"],
+      # Read actual content for logging
+      res = adb_utils.issue_generic_request(
+          [
+              "shell",
+              "cat",
+              file_utils.convert_to_posix_path(
+                  device_constants.MARKOR_DATA, self.params["new_name"]
+              ),
+          ],
           env.controller,
+      )
+      actual_content = res.generic.output.decode().replace("\r", "")
+      content_updated = fuzzy_match_lib.fuzzy_match(
+          actual_content.strip(), self.params["updated_content"]
       )
     success = not original_exists and new_exists and content_updated
 
     # Collect validation logs
     self.add_validation_log('MarkorChangeNoteContent Evaluation Details:')
-    self.add_validation_log(f'  - Original name: {self.params["original_name"]}')
-    self.add_validation_log(f'  - New name: {self.params["new_name"]}')
-    self.add_validation_log(f'  - Expected content: {self.params["updated_content"]}')
     self.add_validation_log(f'  - Original file deleted: {not original_exists}')
     self.add_validation_log(f'  - New file exists: {new_exists}')
-    self.add_validation_log(f'  - Content updated: {content_updated}')
+    self.add_validation_log(f'  - Content match: {content_updated}')
+    self.add_validation_log(f'  - Expected: {repr(self.params["updated_content"])}')
+    self.add_validation_log(f'  - Actual:   {repr(actual_content)}')
     self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0
@@ -864,27 +873,30 @@ class MarkorAddNoteHeader(Markor):
     )
     expected_content = self.params["header"] + "\n\n" + self.params["original_content"] + "\n"
     correct = False
+    actual_content = None
     if new_exists:
-      correct = file_utils.check_file_content(
-          file_utils.convert_to_posix_path(
-              device_constants.MARKOR_DATA, self.params["new_name"]
-          ),
-          expected_content,
+      # Read actual content for logging
+      res = adb_utils.issue_generic_request(
+          [
+              "shell",
+              "cat",
+              file_utils.convert_to_posix_path(
+                  device_constants.MARKOR_DATA, self.params["new_name"]
+              ),
+          ],
           env.controller,
-          exact_match=True,
       )
+      actual_content = res.generic.output.decode().replace("\r", "")
+      correct = actual_content == expected_content
     success = not original_exists and new_exists and correct
 
     # Collect validation logs
     self.add_validation_log('MarkorAddNoteHeader Evaluation Details:')
-    self.add_validation_log(f'  - Original name: {self.params["original_name"]}')
-    self.add_validation_log(f'  - New name: {self.params["new_name"]}')
-    self.add_validation_log(f'  - Header: {self.params["header"]}')
-    self.add_validation_log(f'  - Original content: {self.params["original_content"]}')
-    self.add_validation_log(f'  - Expected content: {expected_content}')
     self.add_validation_log(f'  - Original file deleted: {not original_exists}')
     self.add_validation_log(f'  - New file exists: {new_exists}')
-    self.add_validation_log(f'  - Content correct: {correct}')
+    self.add_validation_log(f'  - Content match: {correct}')
+    self.add_validation_log(f'  - Expected: {repr(expected_content)}')
+    self.add_validation_log(f'  - Actual:   {repr(actual_content)}')
     self.add_validation_log(f'  - Validation result: {success}')
 
     return 1.0 if success else 0.0

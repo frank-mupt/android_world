@@ -245,12 +245,10 @@ class CreateFile(task_eval.TaskEval):
 
     # Collect validation logs
     self.add_validation_log('CreateFile Evaluation Details:')
-    self.add_validation_log(f'  - File name: {file_name}')
-    self.add_validation_log(f'  - Directory: {self.data_directory}')
     self.add_validation_log(f'  - File exists: {exists}')
-    self.add_validation_log(f'  - Expected content: {self.params["text"]}')
-    self.add_validation_log(f'  - Actual content: {file_contents}')
     self.add_validation_log(f'  - Content match: {match}')
+    self.add_validation_log(f'  - Expected: {repr(self.params["text"])}')
+    self.add_validation_log(f'  - Actual:   {repr(file_contents)}')
     self.add_validation_log(f'  - Validation result: {match}')
 
     if not match:
