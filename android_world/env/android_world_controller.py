@@ -58,8 +58,8 @@ def _has_wrapper(
 
 def get_a11y_tree(
     env: env_interface.AndroidEnvInterface,
-    max_retries: int = 5,
-    sleep_duration: float = 1.0,
+    max_retries: int = 10,
+    sleep_duration: float = 2.0,
 ) -> android_accessibility_forest_pb2.AndroidAccessibilityForest:
   """Gets a11y tree.
 
@@ -195,6 +195,21 @@ def apply_a11y_forwarder_app_wrapper(
            'reverse', f'tcp:{a11y_port}', f'tcp:{a11y_port}'],
           capture_output=True, text=True, timeout=10,
       )
+      # Tell the Forwarder App to connect to localhost instead of 10.0.2.2
+      # so that traffic goes through the adb reverse tunnel back to host A.
+      subprocess.run(
+          [adb_path, '-s', device_name,
+           'shell', 'am', 'broadcast',
+           '-a', 'accessibility_forwarder.intent.action.SET_GRPC',
+           '--es', 'host', 'localhost',
+           '--ei', 'port', str(a11y_port),
+           '-n', 'com.google.androidenv.accessibilityforwarder/com.google.androidenv.accessibilityforwarder.FlagsBroadcastReceiver'],
+          capture_output=True, text=True, timeout=10,
+      )
+      logging.info(
+          'Remote mode: set Forwarder App gRPC target to localhost:%s',
+          a11y_port,
+      )
     except Exception as e:
       logging.warning(
           'Failed to set up adb reverse for port %s on device %s: %s',
@@ -262,8 +277,10 @@ class AndroidWorldController(base_wrapper.BaseWrapper):
 
   def _get_a11y_forest(
       self,
+      max_retries: int = 5,
+      sleep_duration: float = 1.0,
   ) -> android_accessibility_forest_pb2.AndroidAccessibilityForest:
-    return get_a11y_tree(self._env)
+    return get_a11y_tree(self._env, max_retries=max_retries, sleep_duration=sleep_duration)
 
   def get_a11y_forest(
       self,
@@ -277,7 +294,8 @@ class AndroidWorldController(base_wrapper.BaseWrapper):
           ' AndroidEnv, and restarting a11y forwarding.'
       )
       self.refresh_env()
-      return self._get_a11y_forest()
+      time.sleep(3.0)  # Give a11y service time to initialize after reconnect.
+      return self._get_a11y_forest(max_retries=10, sleep_duration=2.0)
 
   def get_ui_elements(self) -> list[representation_utils.UIElement]:
     """Returns the most recent UI elements from the device."""
