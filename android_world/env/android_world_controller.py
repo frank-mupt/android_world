@@ -165,13 +165,41 @@ def apply_a11y_forwarder_app_wrapper(
   if install_a11y_forwarding_app and not should_install:
     logging.info('Skipping accessibility forwarder installation (already installed).')
 
-  return a11y_grpc_wrapper.A11yGrpcWrapper(
+  wrapper = a11y_grpc_wrapper.A11yGrpcWrapper(
       env,
       install_a11y_forwarding=should_install,
       start_a11y_service=True,
       enable_a11y_tree_info=True,
       latest_a11y_info_only=True,
   )
+
+  # In remote/Docker mode, the emulator runs inside a container.
+  # The Forwarder app connects to 10.0.2.2:<port> which resolves to
+  # the Docker container, not the host. Use "adb reverse" so that
+  # device:<port> is forwarded back to the host's gRPC server.
+  # Use "-s <device>" to target the correct device when multiple
+  # Docker instances are running.
+  if _is_remote_mode():
+    a11y_port = wrapper.get_port()
+    adb_path = os.path.expanduser(DEFAULT_ADB_PATH)
+    device_name = _get_remote_device_name()
+    logging.info(
+        'Remote mode: setting up adb reverse for a11y gRPC port %s on device %s',
+        a11y_port, device_name,
+    )
+    try:
+      subprocess.run(
+          [adb_path, '-s', device_name,
+           'reverse', f'tcp:{a11y_port}', f'tcp:{a11y_port}'],
+          capture_output=True, text=True, timeout=10,
+      )
+    except Exception as e:
+      logging.warning(
+          'Failed to set up adb reverse for port %s on device %s: %s',
+          a11y_port, device_name, e,
+      )
+
+  return wrapper
 
 
 class AndroidWorldController(base_wrapper.BaseWrapper):
