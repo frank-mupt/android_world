@@ -181,7 +181,9 @@ def apply_a11y_forwarder_app_wrapper(
   # Docker instances are running.
   if _is_remote_mode():
     a11y_port = wrapper.get_port()
-    adb_path = os.path.expanduser(DEFAULT_ADB_PATH)
+    adb_path = os.path.expanduser(
+        os.environ.get('ANDROID_SDK_ROOT', '~/Android/Sdk') + '/platform-tools/adb'
+    )
     device_name = _get_remote_device_name()
     logging.info(
         'Remote mode: setting up adb reverse for a11y gRPC port %s on device %s',
