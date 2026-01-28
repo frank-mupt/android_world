@@ -15,6 +15,9 @@
 """Interface for a task and the evaluation logic for that task."""
 
 import abc
+import fcntl
+import json
+import os
 import random
 from typing import Any
 
@@ -70,10 +73,32 @@ class TaskEval(abc.ABC):
       for log in self._validation_logs:
         print(log)
       print('====================== Task Result Validation ======================\n')
+      self._write_validation_logs_to_file()
     except Exception as e:
       print(f'[Warning] Failed to print validation logs: {e}')
     finally:
       self.clear_validation_logs()
+
+  def _write_validation_logs_to_file(self) -> None:
+    """Write validation logs as JSON to a file specified by VALIDATION_LOG_FILE env var."""
+    log_file = os.environ.get('VALIDATION_LOG_FILE')
+    if not log_file:
+      return
+    try:
+      entry = {
+          'task_id': self.id,
+          'task_name': self.name,
+          'logs': self._validation_logs,
+      }
+      # Append JSON entry to the file, one JSON object per line (JSONL format)
+      with open(log_file, 'a', encoding='utf-8') as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+          f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+        finally:
+          fcntl.flock(f, fcntl.LOCK_UN)
+    except Exception as e:
+      print(f'[Warning] Failed to write validation logs to {log_file}: {e}')
 
   @property
   @abc.abstractmethod
